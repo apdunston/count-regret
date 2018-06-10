@@ -4,6 +4,7 @@
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/web/endpoint.ex":
 import {Socket} from "phoenix"
+import $ from "jquery"
 
 let socket = new Socket("/socket", {params: {token: window.userToken}})
 
@@ -53,19 +54,30 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 
 socket.connect()
 
-let channel           = socket.channel("game:lobby", {})
-let chatInput         = document.querySelector("#chat-input")
-let messagesContainer = document.querySelector("#messages")
+let lobby_channel = socket.channel("game:lobby", {})
+let game_channel = null;
 
-chatInput.addEventListener("keypress", event => {
-  if(event.keyCode === 13){
-    channel.push("new_msg", {body: chatInput.value})
-    chatInput.value = ""
-  }
+$(function() {
+    $('.start-button').click(function() {
+      lobby_channel.push("new_game");
+    });
+
+    $('.join-button').click(function() {
+      var game_name = $('input[name=game-name]').val();
+      console.log("Trying to join game: " + game_name);
+      game_channel = socket.channel("game:" + game_name, {});
+      game_channel.join()
+        .receive("ok", resp => { console.log("Joined game successfully", resp) })
+        .receive("error", resp => { console.log("Unable to join game", resp) })
+    });
+});
+
+lobby_channel.on("start_game", payload => {
+  console.log(payload.body);
 })
 
-channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
-  .receive("error", resp => { console.log("Unable to join", resp) })
+lobby_channel.join()
+  .receive("ok", resp => { console.log("Joined lobby successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join lobby", resp) })
 
 export default socket

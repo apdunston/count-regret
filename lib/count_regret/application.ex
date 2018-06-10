@@ -14,6 +14,7 @@ defmodule CountRegret.Application do
       supervisor(CountRegretWeb.Endpoint, []),
       # Start your own worker by calling: CountRegret.Worker.start_link(arg1, arg2, arg3)
       # worker(CountRegret.Worker, [arg1, arg2, arg3]),
+      supervisor(CountRegret.GameMaker, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

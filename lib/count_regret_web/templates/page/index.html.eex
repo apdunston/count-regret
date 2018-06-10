@@ -2,6 +2,11 @@
 <button class="start-button">Start Game</button>
 </div>
 <div>
+<input type="text" name="game-name">
+<button class="join-button">Join Game</button>
+</div>
+<br>
+<div>
   <div style="float: left">
     <div>
       <canvas id="canvas1"></canvas>

@@ -30,3 +30,11 @@ An online, multiplayer maze game.
 ## Development
 
 I'm using the hollow-cart maze game engine. When there's a new edition of hollow-cart, build it and set the bundle.js file in `assets/vendor`. I've named it `hollowCart.js`, but that's not entirely necessary.
+
+* I had to learn to put `hollowCart.js` in the `assets/vendor` directory so B--- wouldn't try to compile it.
+* I followed the Phoenix Channel documentation 
+* I learned to add jquery to the mix here: http://phoenixframework.org/blog/static-assets
+* Registering processes: https://m.alphasights.com/process-registry-in-elixir-a-practical-example-4500ee7c0dcc
+* I learned about ETS counters 
+  * here https://elixir-lang.org/getting-started/mix-otp/ets.html
+  * and here https://jmilet.github.io/ets/counters/elixir/erlang/2016/05/07/ets-counters.html
