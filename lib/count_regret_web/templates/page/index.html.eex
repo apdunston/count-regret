@@ -1,0 +1,18 @@
+<div>
+<button class="start-button">Start Game</button>
+</div>
+<div>
+  <div style="float: left">
+    <div>
+      <canvas id="canvas1"></canvas>
+    </div>
+    <div style="text-align: center">Maze</div>
+  </div>
+  <div style="float: left; width 20px">&nbsp;</div>
+  <div style="float: left">
+    <div>
+      <canvas id="canvas2"></canvas>
+    </div>
+    <div style="text-align: center">Effects</div>
+  </div>
+<div style="clear: both;"></div>
