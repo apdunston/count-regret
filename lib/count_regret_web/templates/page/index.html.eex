@@ -1,9 +1,11 @@
-<div>
-<button class="start-button">Start Game</button>
-</div>
-<div>
-<input type="text" name="game-name">
-<button class="join-button">Join Game</button>
+<div class="controls">
+  <div>
+    <button class="start-button">Start Game</button>
+  </div>
+  <div>
+    <input type="text" name="game-name">
+    <button class="join-button">Join Game</button>
+  </div>
 </div>
 <br>
 <div>

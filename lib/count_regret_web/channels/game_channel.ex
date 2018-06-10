@@ -18,7 +18,7 @@ defmodule CountRegretWeb.GameChannel do
 
       {:ok, game} ->
         player_number = Game.add_player(game)
-        {:ok, %{player_number: player_number}, socket}
+        {:ok, %{player_number: player_number, game_name: name}, socket}
     end
   end
 
@@ -26,9 +26,13 @@ defmodule CountRegretWeb.GameChannel do
     game = GameMaker.make_game()
     name = Game.get_name(game)
     player_number = Game.add_player(game)
-    broadcast!(socket, "start_game",
-      %{body: "Starting game #{name}! You are player number #{player_number}"})
+    # broadcast!(socket, "start_game",
+    #   %{
+    #     body: "Starting game #{name}! You are player number #{player_number}",
+    #     game_name: name
+    #   })
     assign(socket, :game, game)
-    {:noreply, socket}
+
+    {:reply, {:ok, %{game_name: name, player_number: player_number}}, socket}
   end
 end

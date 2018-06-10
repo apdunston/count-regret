@@ -57,23 +57,35 @@ socket.connect()
 let lobby_channel = socket.channel("game:lobby", {})
 let game_channel = null;
 
+let join_game = function() {
+  var game_name = $('input[name=game-name]').val();
+  console.log("Trying to join game: " + game_name);
+  game_channel = socket.channel("game:" + game_name, {});
+  game_channel.join()
+    .receive("ok", resp => { 
+      console.log("Joined game successfully", resp) 
+      display_game(resp);
+    })
+    .receive("error", resp => { console.log("Unable to join game", resp) })
+};
+
+let display_game = function(payload) {
+  $('.controls').html("<p>Game Name: " + payload.game_name + "</p>");
+}
+
 $(function() {
     $('.start-button').click(function() {
-      lobby_channel.push("new_game");
+      lobby_channel.push("new_game")
+        .receive("ok", resp => { display_game(resp) });
     });
 
     $('.join-button').click(function() {
-      var game_name = $('input[name=game-name]').val();
-      console.log("Trying to join game: " + game_name);
-      game_channel = socket.channel("game:" + game_name, {});
-      game_channel.join()
-        .receive("ok", resp => { console.log("Joined game successfully", resp) })
-        .receive("error", resp => { console.log("Unable to join game", resp) })
+      join_game();
     });
 });
 
-lobby_channel.on("start_game", payload => {
-  console.log(payload.body);
+lobby_channel.on("whatever_broadcast_topic", payload => {
+  // Do something with the payload object.
 })
 
 lobby_channel.join()

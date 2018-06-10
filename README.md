@@ -6,9 +6,9 @@ An online, multiplayer maze game.
 
 - [x] Set up a Phoenix channel
   - On a mazegame page
-- [] Start game
+- [x] Start game
   - Gets a game number (:ets.update_counter/3)
-- [] Have JS send start game, then show the number (start game)
+- [x] Have JS send start game, then show the number (start game)
 - [] Have JS send the keyboard events
 - [] Have a second browser join the game (join game)
 - [] Have Elixir send out the moves (move player)
@@ -38,3 +38,12 @@ I'm using the hollow-cart maze game engine. When there's a new edition of hollow
 * I learned about ETS counters 
   * here https://elixir-lang.org/getting-started/mix-otp/ets.html
   * and here https://jmilet.github.io/ets/counters/elixir/erlang/2016/05/07/ets-counters.html
+* `Channel.join/3` can return 
+  * `{:error, %{}}`
+  * `{:ok, socket}`
+  * or `{:okay, %{}, socket}`
+* `Channel.handle_in/3` can return
+  * `{:noreply, socket}`
+  * `{:reply, :ok, socket}`
+  * `{:reply, {:ok, %{}}, socket}`
+  * `{:stop, :shutdown, {:error, %{}}, socket}`
