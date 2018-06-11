@@ -18,21 +18,16 @@ defmodule CountRegretWeb.GameChannel do
 
       {:ok, game} ->
         player_number = Game.add_player(game)
-        {:ok, %{player_number: player_number, game_name: name}, socket}
+        maze = Game.get_maze(game)
+        {:ok, %{player_number: player_number, game_name: name, maze: maze}, socket}
     end
   end
 
-  def handle_in("new_game", _map, socket) do
-    game = GameMaker.make_game()
+  def handle_in("new_game", maze, socket) do
+    game = GameMaker.make_game(maze)
     name = Game.get_name(game)
     player_number = Game.add_player(game)
-    # broadcast!(socket, "start_game",
-    #   %{
-    #     body: "Starting game #{name}! You are player number #{player_number}",
-    #     game_name: name
-    #   })
     assign(socket, :game, game)
-
     {:reply, {:ok, %{game_name: name, player_number: player_number}}, socket}
   end
 end

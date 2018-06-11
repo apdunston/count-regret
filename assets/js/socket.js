@@ -65,6 +65,9 @@ let join_game = function() {
     .receive("ok", resp => { 
       console.log("Joined game successfully", resp) 
       display_game(resp);
+
+      console.log("maze: ",resp.maze);
+      startGame(resp.maze);
     })
     .receive("error", resp => { console.log("Unable to join game", resp) })
 };
@@ -75,7 +78,8 @@ let display_game = function(payload) {
 
 $(function() {
     $('.start-button').click(function() {
-      lobby_channel.push("new_game")
+      var maze = startGame();
+      lobby_channel.push("new_game", maze)
         .receive("ok", resp => { display_game(resp) });
     });
 
@@ -84,9 +88,6 @@ $(function() {
     });
 });
 
-lobby_channel.on("whatever_broadcast_topic", payload => {
-  // Do something with the payload object.
-})
 
 lobby_channel.join()
   .receive("ok", resp => { console.log("Joined lobby successfully", resp) })

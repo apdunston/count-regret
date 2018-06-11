@@ -10365,30 +10365,21 @@ return jQuery;
 } );
 
 },{}],2:[function(require,module,exports){
+(function (global){
 "use strict";
 
 var $ = require("jquery");
 var KeyboardDriver = require('./engine/drivers/keyboardDriver.js');
 var TwoPlayerGameMaster = require('./engine/gameMasters/twoPlayerGameMaster.js');
 
-// window.onload=function() {
-//   var canv = $("#canvas1")[0];
-//   var driver = new DisplayDriver(canv);
-//   var display1 = new Display(driver, 0);
-//   display1.setColor("black");
+// global.$ = $;
+global.gameMaster = null;
+global.startGame = function(maze) {
+  if (gameMaster != null) {
+    gameMaster.stop();
+  }
 
-//   var displaySpeed = 100;
-//   canv = $("#canvas2")[0];
-//   driver = new DisplayDriver(canv);
-//   var display2 = new Display(driver, displaySpeed);
-//   display2.setColor("black");
-
-//   var squareLength, gridLength;
-//   squareLength = gridLength = 20;
-//   var mazeGame = new MazeGame(document, display1, display2, gridLength, squareLength);
-// }
-
-window.onload=function() {
+  $('.play-area').show();
   var canv, display1, display2, display3, display4, mazeGame, 
     canvasLength;
   canvasLength = 400;
@@ -10402,10 +10393,13 @@ window.onload=function() {
   var keyboardDriver = new KeyboardDriver(document);
   var soundDriver = null;
 
-  var gameMaster = new TwoPlayerGameMaster(canvas1, canvas2, keyboardDriver, soundDriver);
+  gameMaster = new TwoPlayerGameMaster(canvas1, canvas2, keyboardDriver, soundDriver);  
+  gameMaster.start(maze);
+  return gameMaster.getCurrentGame().getMaze();
 }
 
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./engine/drivers/keyboardDriver.js":9,"./engine/gameMasters/twoPlayerGameMaster.js":15,"jquery":1}],3:[function(require,module,exports){
 "use strict";
 
@@ -11222,6 +11216,10 @@ module.exports = function() {
     this.next();
   };
 
+  GameMaster.prototype.getCurrentGame = function() {
+    return this.games[this.currentGameIndex];
+  }
+
   return GameMaster;
 }();
 },{}],15:[function(require,module,exports){
@@ -11232,7 +11230,7 @@ var TwoPlayerMazeGame = require('../games/twoPlayerMazeGame.js');
 var DisplayDriver = require('../drivers/displayDriver.js');
 
 module.exports = function() {
-  var TwoPlayer = function TwoPlayer(canvas1, canvas2, keyboardDriver, soundDriver) {
+  var TwoPlayerGameMaster = function TwoPlayerGameMaster(canvas1, canvas2, keyboardDriver, soundDriver) {
     GameMaster.call(this); // super()
     var gridLength = 10;
     var squareLength = 20;
@@ -11244,20 +11242,34 @@ module.exports = function() {
     var display2 = new Display(new DisplayDriver(canvas2), displaySpeed);
     display2.setColor("black");
     this.addGame(new TwoPlayerMazeGame(keyboardDriver, display1, display2, gridLength, squareLength));
-    this.start();
-  }; /**
-      * Interface GameMaster
-      */
+  }; 
 
-  TwoPlayer.prototype = Object.create(GameMaster.prototype);
-  TwoPlayer.prototype.constructor = TwoPlayer;
+  /**
+    * Interface GameMaster
+    */
 
-  TwoPlayer.prototype.next = function () {
+  TwoPlayerGameMaster.prototype = Object.create(GameMaster.prototype);
+  TwoPlayerGameMaster.prototype.constructor = TwoPlayerGameMaster;
+
+  TwoPlayerGameMaster.prototype.next = function () {
     this.stopCurrentGame();
     this.startCurrentGame();
   };
 
-  return TwoPlayer;
+  TwoPlayerGameMaster.prototype.start = function (maze) {
+    this.stopCurrentGame();
+    this.currentGameIndex = 0;
+    this.startCurrentGame(maze);
+  };
+
+  TwoPlayerGameMaster.prototype.startCurrentGame = function (maze) {
+    if (this.currentGameIndex !== null) {
+      this.games[this.currentGameIndex].start(maze);
+    }
+  };
+
+
+  return TwoPlayerGameMaster;
 }();
 },{"../display.js":3,"../drivers/displayDriver.js":8,"../games/twoPlayerMazeGame.js":21,"./gameMaster.js":14}],16:[function(require,module,exports){
 "use strict";
@@ -11708,10 +11720,10 @@ module.exports = function () {
 
   TwoPlayerMazeGame.prototype = Object.create(Game.prototype);
 
-  TwoPlayerMazeGame.prototype.start = function () {
+  TwoPlayerMazeGame.prototype.start = function (maze) {
     var self = this;
     Game.prototype.start.call(self);
-    this.reset();
+    this.reset(maze);
   };
 
   TwoPlayerMazeGame.prototype.drawLoop = function () {
@@ -11727,11 +11739,17 @@ module.exports = function () {
     this.drawLoop();
   };
 
-  TwoPlayerMazeGame.prototype.reset = function () {
+  TwoPlayerMazeGame.prototype.reset = function (maze) {
     this.won = false;
-    this.map = MazeData.generate(this.gridLength, this.gridLength);
-    this.drawMap = MazeData.translate(this.map);
-    this.maze = new Maze(this.drawMap, this.squareLength);
+
+    if (maze == null) {
+      var map = MazeData.generate(this.gridLength, this.gridLength);
+      var drawMap = MazeData.translate(map);
+      this.maze = new Maze(drawMap, this.squareLength);
+    } else {
+      this.maze = new Maze(maze.drawMap, this.squareLength);
+    }
+    
     this.player = new Player(this.gridLength, this.squareLength, this);
     this.player2 = new Player(this.gridLength, this.squareLength, this);
     this.player2.setColor("#555555");
@@ -11755,6 +11773,10 @@ module.exports = function () {
   TwoPlayerMazeGame.prototype.getPlayer = function () {
     return this.player;
   };
+
+  TwoPlayerMazeGame.prototype.getMaze = function() {
+    return this.maze;
+  }
 
   TwoPlayerMazeGame.prototype.keyDown = function (evt) {
     switch (evt.keyCode) {
@@ -11868,9 +11890,17 @@ module.exports = {
 
 module.exports = function() {
   var GridTranslator = function GridTranslator(xOffset, yOffset, squareLength) {
-    this.xOffset = xOffset;
-    this.yOffset = yOffset;
-    this.squareLength = squareLength;
+
+    // Overload - if you pass in gridtranslator data, initialize off that data
+    if (typeof(xOffset) == "object") {
+      this.xOffSet = xOffset.xOffset;
+      this.yOffset = xOffset.yOffset;
+      this.squareLength = xOffset.squareLength;
+    } else {
+      this.xOffset = xOffset;
+      this.yOffset = yOffset;
+      this.squareLength = squareLength;
+    }
   };
 
   GridTranslator.prototype.constructor = GridTranslator;

@@ -9,8 +9,9 @@ An online, multiplayer maze game.
 - [x] Start game
   - Gets a game number (:ets.update_counter/3)
 - [x] Have JS send start game, then show the number (start game)
+- [x] Have a second browser join the game (join game)
+- [] Pass in map when game is created
 - [] Have JS send the keyboard events
-- [] Have a second browser join the game (join game)
 - [] Have Elixir send out the moves (move player)
 - [] Have JS rely on the moves elixir sends
 - [] Have JS send win game (win game)
@@ -47,3 +48,21 @@ I'm using the hollow-cart maze game engine. When there's a new edition of hollow
   * `{:reply, :ok, socket}`
   * `{:reply, {:ok, %{}}, socket}`
   * `{:stop, :shutdown, {:error, %{}}, socket}`
+
+Elixir to send broadcast
+```
+    broadcast!(socket, "my_topic",
+      %{
+        body: "Starting game #{name}! You are player number #{player_number}",
+        game_name: name
+      })
+```
+
+Javascript to receive broadcast
+```
+lobby_channel.on("my_topic", payload => {
+  // Do something with the payload object.
+})
+```
+
+* `global.myVar = myVar` is how you do global variables in es6
