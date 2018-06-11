@@ -10,7 +10,7 @@ An online, multiplayer maze game.
   - Gets a game number (:ets.update_counter/3)
 - [x] Have JS send start game, then show the number (start game)
 - [x] Have a second browser join the game (join game)
-- [] Pass in map when game is created
+- [x] Pass in map when game is created
 - [] Have JS send the keyboard events
 - [] Have Elixir send out the moves (move player)
 - [] Have JS rely on the moves elixir sends

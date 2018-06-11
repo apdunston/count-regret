@@ -52,6 +52,6 @@ defmodule CountRegret.GameMaker do
   ## Helper Functions”
 
   defp increment(counter) do
-    :ets.update_counter(counter, @key, 0, {@key, 1})
+    :ets.update_counter(counter, @key, 1, {@key, 0})
   end
 end
