@@ -30,4 +30,18 @@ defmodule CountRegretWeb.GameChannel do
     assign(socket, :game, game)
     {:reply, {:ok, %{game_name: name, player_number: player_number}}, socket}
   end
+
+  def handle_in("key_down", %{"player" => player, "key_code" => key_code}, socket) do
+    broadcast!(socket, "key_down",
+      %{
+        player: player,
+        key_code: key_code
+      })
+    {:noreply, socket}
+  end
+
+  def handle_in(event, payload, socket) do
+    IO.puts "UNKNOWN EVENT: #{inspect {event, payload, "socket"}}"
+    {:noreply, socket}
+  end
 end

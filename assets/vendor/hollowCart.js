@@ -10365,42 +10365,6 @@ return jQuery;
 } );
 
 },{}],2:[function(require,module,exports){
-(function (global){
-"use strict";
-
-var $ = require("jquery");
-var KeyboardDriver = require('./engine/drivers/keyboardDriver.js');
-var TwoPlayerGameMaster = require('./engine/gameMasters/twoPlayerGameMaster.js');
-
-// global.$ = $;
-global.gameMaster = null;
-global.startGame = function(maze) {
-  if (gameMaster != null) {
-    gameMaster.stop();
-  }
-
-  $('.play-area').show();
-  var canv, display1, display2, display3, display4, mazeGame, 
-    canvasLength;
-  canvasLength = 400;
-
-  $('canvas').attr('height', canvasLength).attr('width', canvasLength);
-
-  var canvas1 = $("#canvas1")[0];
-  var canvas2 = $("#canvas2")[0];
-
-  // TODO - implement keyPushListeners
-  var keyboardDriver = new KeyboardDriver(document);
-  var soundDriver = null;
-
-  gameMaster = new TwoPlayerGameMaster(canvas1, canvas2, keyboardDriver, soundDriver);  
-  gameMaster.start(maze);
-  return gameMaster.getCurrentGame().getMaze();
-}
-
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./engine/drivers/keyboardDriver.js":9,"./engine/gameMasters/twoPlayerGameMaster.js":15,"jquery":1}],3:[function(require,module,exports){
 "use strict";
 
 /**
@@ -10505,7 +10469,7 @@ module.exports = function() {
 
   return Display;
 }();
-},{"./drawableObjects/square.js":7}],4:[function(require,module,exports){
+},{"./drawableObjects/square.js":6}],3:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
@@ -10554,7 +10518,7 @@ module.exports = function() {
 
   return Circle;
 }();
-},{"./drawableObject.js":5}],5:[function(require,module,exports){
+},{"./drawableObject.js":4}],4:[function(require,module,exports){
 "use strict";
 
 var DrawableObjectState = require('./drawableObjectState.js');
@@ -10627,7 +10591,7 @@ module.exports = function() {
 
   return DrawableObject;
 }();
-},{"../enums/alpha.js":13,"./drawableObjectState.js":6}],6:[function(require,module,exports){
+},{"../enums/alpha.js":13,"./drawableObjectState.js":5}],5:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -10635,7 +10599,7 @@ module.exports = {
   FADING_IN: 1,
   FADING_OUT: 2
 };
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
@@ -10811,7 +10775,7 @@ module.exports = function() {
 
   return Square;
 }();
-},{"./drawableObject.js":5}],8:[function(require,module,exports){
+},{"./drawableObject.js":4}],7:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -10885,7 +10849,7 @@ module.exports = function () {
 
   return DisplayDriver;
 }();
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 module.exports = function() {
@@ -10923,6 +10887,58 @@ module.exports = function() {
   };
 
   return KeyboardDriver;
+}();
+},{}],9:[function(require,module,exports){
+"use strict";
+
+module.exports = function() {
+  var RemoteKeyboardDriver = function RemoteKeyboardDriver(document) {
+    var self = this;
+    this.keyDownListeners = [];
+    this.remoteKeyDownListeners = [];
+    document.addEventListener("keydown", function (evt) {
+      self.keyDown(evt);
+    });
+  };
+
+  RemoteKeyboardDriver.prototype.constructor = RemoteKeyboardDriver;
+
+  RemoteKeyboardDriver.prototype.addKeyDownListener = function (keyDownListener) {
+    this.keyDownListeners.push(keyDownListener);
+  };
+
+  RemoteKeyboardDriver.prototype.addRemoteKeyDownListener = function (keyDownListener) {
+    this.keyDownListeners.push(keyDownListener);
+  };
+
+  RemoteKeyboardDriver.prototype.removeKeyDownListener = function (keyDownListener) {
+    this.removeListener(keyDownListener, this.keyDownListeners);
+  }
+
+  RemoteKeyboardDriver.prototype.removeRemoteKeyDownListener = function (keyDownListener) {
+    this.removeListener(keyDownListener, this.remoteKeyDownListeners);
+  }
+
+  RemoteKeyboardDriver.prototype.removeListener = function (keyDownListener, list) {
+    var index = list.indexOf(keyDownListener);
+    if (index < 0) {
+      throw "Trying to remove nonexistent keyDownListener";
+    }
+    list.splice(index, 1);
+  };
+
+  RemoteKeyboardDriver.prototype.getKeyDownListeners = function () {
+    return this.keyDownListeners;
+  };
+
+  RemoteKeyboardDriver.prototype.keyDown = function (keyCode) {
+    var self = this;
+    for (var i = 0; i < this.keyDownListeners.length; i++) {
+      this.keyDownListeners[i].keyDown(keyCode);
+    }    
+  };
+
+  return RemoteKeyboardDriver;
 }();
 },{}],10:[function(require,module,exports){
 "use strict";
@@ -11117,7 +11133,7 @@ module.exports = function() {
 
   return Sparkle;
 }();
-},{"../drawableObjects/square.js":7,"../gamespace.js":22}],13:[function(require,module,exports){
+},{"../drawableObjects/square.js":6,"../gamespace.js":22}],13:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11271,7 +11287,7 @@ module.exports = function() {
 
   return TwoPlayerGameMaster;
 }();
-},{"../display.js":3,"../drivers/displayDriver.js":8,"../games/twoPlayerMazeGame.js":21,"./gameMaster.js":14}],16:[function(require,module,exports){
+},{"../display.js":2,"../drivers/displayDriver.js":7,"../games/twoPlayerMazeGame.js":21,"./gameMaster.js":14}],16:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11389,7 +11405,7 @@ module.exports = function () {
   };
   return Entity;
 }();
-},{"../drawableObjects/square.js":7,"../gamespace.js":22,"../gridTranslator.js":23}],17:[function(require,module,exports){
+},{"../drawableObjects/square.js":6,"../gamespace.js":22,"../gridTranslator.js":23}],17:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11459,7 +11475,7 @@ module.exports = function() {
 
   return Maze;
 }();
-},{"../drawableObjects/drawableObject.js":5,"../enums/alpha.js":13,"../gamespace.js":22,"../gridTranslator.js":23}],18:[function(require,module,exports){
+},{"../drawableObjects/drawableObject.js":4,"../enums/alpha.js":13,"../gamespace.js":22,"../gridTranslator.js":23}],18:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11688,7 +11704,7 @@ module.exports = function () {
 
   return MazeGame;
 }();
-},{"../mazeData.js":24,"./game.js":19}],21:[function(require,module,exports){
+},{"../mazeData.js":25,"./game.js":19}],21:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11847,7 +11863,7 @@ module.exports = function () {
 
   return TwoPlayerMazeGame;
 }();
-},{"../drawableObjects/circle.js":4,"../effects/firework.js":10,"../gameObjects/maze.js":17,"../gameObjects/player.js":18,"../games/mazeGame.js":20,"../gamespace.js":22,"../mazeData.js":24,"./game.js":19}],22:[function(require,module,exports){
+},{"../drawableObjects/circle.js":3,"../effects/firework.js":10,"../gameObjects/maze.js":17,"../gameObjects/player.js":18,"../games/mazeGame.js":20,"../gamespace.js":22,"../mazeData.js":25,"./game.js":19}],22:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11946,6 +11962,63 @@ module.exports = function() {
   return GridTranslator;
 }();
 },{}],24:[function(require,module,exports){
+"use strict";
+
+var $ = require("jquery");
+var KeyboardDriver = require('./drivers/keyboardDriver.js');
+var RemoteKeyboardDriver = require('./drivers/remoteKeyboardDriver.js');
+var TwoPlayerGameMaster = require('./gameMasters/twoPlayerGameMaster.js');
+
+module.exports = function() {
+  var HollowCart = function() {
+    this.keyboardDriver = null;
+    this.gameMaster = null;
+  };
+  
+  HollowCart.prototype.constructor = HollowCart;
+
+  HollowCart.prototype.startTwoPlayerLocal = function (maze) {
+    this.keyboardDriver = new KeyboardDriver(document);
+    return this.startTwoPlayer(maze);
+  };
+
+  HollowCart.prototype.startTwoPlayerRemote = function (maze, remoteKeyDownListener) {
+    this.keyboardDriver = new RemoteKeyboardDriver(document);
+    this.addRemoteKeyDownListener(remoteKeyDownListener);
+    return this.startTwoPlayer(maze);
+  };
+
+  HollowCart.prototype.addRemoteKeyDownListener = function(listener) {
+    this.keyboardDriver.addRemoteKeyDownListener(listener);
+  }
+
+  HollowCart.prototype.startTwoPlayer = function (maze) {
+    if (this.gameMaster != null) {
+      this.gameMaster.stop();
+    }
+
+    $('.play-area').show();
+    var canv, display1, display2, display3, display4, mazeGame, 
+      canvasLength;
+    canvasLength = 400;
+
+    $('canvas').attr('height', canvasLength).attr('width', canvasLength);
+
+    var canvas1 = $("#canvas1")[0];
+    var canvas2 = $("#canvas2")[0];
+
+    // TODO - implement keyPushListeners
+    var soundDriver = null;
+
+    this.gameMaster = new TwoPlayerGameMaster(canvas1, canvas2, this.keyboardDriver, soundDriver);  
+    this.gameMaster.start(maze);
+    return this.gameMaster.getCurrentGame().getMaze();
+  };
+
+  return HollowCart;
+}();
+
+},{"./drivers/keyboardDriver.js":8,"./drivers/remoteKeyboardDriver.js":9,"./gameMasters/twoPlayerGameMaster.js":15,"jquery":1}],25:[function(require,module,exports){
 'use strict';
 
 /**
@@ -12046,6 +12119,9 @@ module.exports = {
     return { horizontalSpaces: horizontalSpaces, verticalSpaces: verticalSpaces };
   }
 };
-},{}],25:[function(require,module,exports){
-var TwoPlayer = require('./2player.js');
-},{"./2player.js":2}]},{},[25]);
+},{}],26:[function(require,module,exports){
+(function (global){
+global.$ = require("jquery");
+global.HollowCart = require('./engine/hollowCart.js');
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./engine/hollowCart.js":24,"jquery":1}]},{},[26]);
