@@ -14,29 +14,28 @@ defmodule CountRegretWeb.GameChannel do
   def join("game:" <> name, _params, socket) do
     case GameMaker.get_game(name) do
       {:error, _reason} ->
-        {:error, %{reason: "That game doesn't exist."}}
+        {:error, %{reason: "Game #{name} doesn't exist."}}
 
       {:ok, game} ->
         player_number = Game.add_player(game)
+        players = Game.get_players(game)
         maze = Game.get_maze(game)
-        {:ok, %{player_number: player_number, game_name: name, maze: maze}, socket}
+        socket = assign(socket, :game, game)
+        {:ok, %{player_number: player_number, game_name: name, maze: maze, players: players}, socket}
     end
   end
 
   def handle_in("new_game", maze, socket) do
     game = GameMaker.make_game(maze)
     name = Game.get_name(game)
-    player_number = Game.add_player(game)
-    assign(socket, :game, game)
-    {:reply, {:ok, %{game_name: name, player_number: player_number}}, socket}
+    socket = assign(socket, :game, game)
+    {:reply, {:ok, %{game_name: name, player_number: 0}}, socket}
   end
 
-  def handle_in("key_down", %{"player" => player, "key_code" => key_code}, socket) do
-    broadcast!(socket, "key_down",
-      %{
-        player: player,
-        key_code: key_code
-      })
+  def handle_in("move", %{"player_number" => player_number, "x" => x, "y" => y}, socket) do
+    game = socket.assigns.game
+    Game.set_player_position(game, player_number, x, y)
+    broadcast!(socket, "positions", %{players: Game.get_players(game)})
     {:noreply, socket}
   end
 

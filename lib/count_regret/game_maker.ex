@@ -40,7 +40,6 @@ defmodule CountRegret.GameMaker do
   end
 
   def handle_call({:get_game, name}, _from, %{games: games} = state) do
-    IO.puts "Trying to get game #{name} from games: #{inspect games} yields #{inspect Map.get(games, name)}"
     game = case Map.get(games, name) do
       nil -> {:error, :no_such_game}
       value -> {:ok, value}
