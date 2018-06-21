@@ -65,7 +65,8 @@ config :logger, level: :info
 # which should be versioned separately.
 # import_config "prod.secret.exs"
 
-adapter: Ecto.Adapters.Postgres,
-url: System.get_env("DATABASE_URL"),
-pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-ssl: true
+config :count_regret, CountRegret.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env("DATABASE_URL"),
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  ssl: true
