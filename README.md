@@ -11,7 +11,7 @@ An online, multiplayer maze game.
 - [x] Have JS send start game, then show the number (start game)
 - [x] Have a second browser join the game (join game)
 - [x] Pass in map when game is created
-- [] When I join a game, show me where the first player is.
+- [x] When I join a game, show me where the first player is.
   - What knows where the player is?
     * A: entity, ergo player
   - What has access to the player?
@@ -19,10 +19,10 @@ An online, multiplayer maze game.
   - successfulMoveEvent sends to networkDriver which sends "move" up to server.
   - server hears "move", updates the player's position and then broadcasts "positions"
   - networkDriver hears "positions" and calls it on the game which updates everyone except the local.
-- [] When someone joins my game, show me where they are
-- [] Have JS send the keyboard events
-- [] Have Elixir send out the moves (move player)
-- [] Have JS rely on the moves elixir sends
+- [x] When someone joins my game, show me where they are
+- [x] Have JS send the keyboard events
+- [x] Have Elixir send out the moves (move player)
+- [x] Have JS rely on the moves elixir sends
 - [] Have JS send win game (win game)
 - [] Have Elixir send timeout (timeout game)
 
