@@ -10500,7 +10500,7 @@ module.exports = function() {
 
   return BlinkingCursor;
 }();
-},{"../enums/alpha.js":17,"../enums/displayConstants.js":18,"./square.js":8}],4:[function(require,module,exports){
+},{"../enums/alpha.js":19,"../enums/displayConstants.js":20,"./square.js":8}],4:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
@@ -10622,7 +10622,7 @@ module.exports = function() {
 
   return DrawableObject;
 }();
-},{"../enums/alpha.js":17,"./drawableObjectState.js":6}],6:[function(require,module,exports){
+},{"../enums/alpha.js":19,"./drawableObjectState.js":6}],6:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -10863,7 +10863,7 @@ module.exports = function() {
   return Text;
 }();
 
-},{"../enums/displayConstants.js":18,"./drawableObject.js":5,"./font.js":7}],10:[function(require,module,exports){
+},{"../enums/displayConstants.js":20,"./drawableObject.js":5,"./font.js":7}],10:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
@@ -10935,7 +10935,7 @@ module.exports = function() {
 
   return TypedText;
 }();
-},{"../enums/displayConstants.js":18,"./drawableObject.js":5,"./font.js":7}],11:[function(require,module,exports){
+},{"../enums/displayConstants.js":20,"./drawableObject.js":5,"./font.js":7}],11:[function(require,module,exports){
 "use strict";
 
 var Font = require('../drawableObjects/font.js');
@@ -11013,6 +11013,70 @@ module.exports = function () {
 },{"../drawableObjects/font.js":7}],12:[function(require,module,exports){
 "use strict";
 
+var SubDisplay = require('./subDisplay.js');
+
+module.exports = function() {
+  var HorizontalDisplay = function (drawMap, squareLength) {
+    var self = this;
+    SubDisplay.call(this, drawMap, squareLength);
+    this.displayFunction = function (one, two, three) {
+      self.gridTranslator.drawHorizontalRow(one, two, three);
+    };
+    this.spacesArray = this.drawMap.horizontalSpaces;
+  };
+  HorizontalDisplay.prototype = Object.create(SubDisplay.prototype);
+  HorizontalDisplay.prototype.constructor = SubDisplay;
+
+  return HorizontalDisplay;
+}();
+},{"./subDisplay.js":13}],13:[function(require,module,exports){
+"use strict";
+
+var GridTranslator = require('../../gridTranslator.js');
+
+module.exports = function() {
+  var SubDisplay = function (drawMap, squareLength) {
+    this.drawMap = drawMap;
+    this.squareLength = squareLength;
+    this.gridTranslator = new GridTranslator(0, 0, squareLength);
+  };
+
+  SubDisplay.prototype.constructor = SubDisplay;
+
+  SubDisplay.prototype.draw = function (renderer) {
+    for (var i = 0; i < this.spacesArray.length; i += 1) {
+      this.displayFunction(i, this.spacesArray[i], renderer, this.squareLength);
+    }
+  };
+
+  SubDisplay.prototype.isDone = function () {
+    return false;
+  };
+
+  return SubDisplay;
+}();
+
+},{"../../gridTranslator.js":36}],14:[function(require,module,exports){
+"use strict";
+
+var SubDisplay = require('./subDisplay.js');
+module.exports = function() {
+
+  var VerticalDisplay = function (drawMap, squareLength) {
+    var self = this;
+    SubDisplay.call(this, drawMap, squareLength);
+    this.displayFunction = function (one, two, three) {
+      self.gridTranslator.drawVerticalRow(one, two, three);
+    };
+    this.spacesArray = this.drawMap.verticalSpaces;
+  };
+  VerticalDisplay.prototype = Object.create(SubDisplay.prototype);
+  VerticalDisplay.prototype.constructor = SubDisplay;
+  return VerticalDisplay;
+}();
+},{"./subDisplay.js":13}],15:[function(require,module,exports){
+"use strict";
+
 module.exports = function() {
   var KeyboardDriver = function KeyboardDriver(document) {
     var self = this;
@@ -11049,59 +11113,7 @@ module.exports = function() {
 
   return KeyboardDriver;
 }();
-},{}],13:[function(require,module,exports){
-"use strict";
-
-module.exports = function() {
-  var RemoteKeyboardDriver = function RemoteKeyboardDriver(document) {
-    var self = this;
-    this.keyDownListeners = [];
-    this.remoteKeyDownListeners = [];
-    document.addEventListener("keydown", function (evt) {
-      self.keyDown(evt);
-    });
-  };
-
-  RemoteKeyboardDriver.prototype.constructor = RemoteKeyboardDriver;
-
-  RemoteKeyboardDriver.prototype.addKeyDownListener = function (keyDownListener) {
-    this.keyDownListeners.push(keyDownListener);
-  };
-
-  RemoteKeyboardDriver.prototype.addRemoteKeyDownListener = function (keyDownListener) {
-    this.keyDownListeners.push(keyDownListener);
-  };
-
-  RemoteKeyboardDriver.prototype.removeKeyDownListener = function (keyDownListener) {
-    this.removeListener(keyDownListener, this.keyDownListeners);
-  }
-
-  RemoteKeyboardDriver.prototype.removeRemoteKeyDownListener = function (keyDownListener) {
-    this.removeListener(keyDownListener, this.remoteKeyDownListeners);
-  }
-
-  RemoteKeyboardDriver.prototype.removeListener = function (keyDownListener, list) {
-    var index = list.indexOf(keyDownListener);
-    if (index < 0) {
-      throw "Trying to remove nonexistent keyDownListener";
-    }
-    list.splice(index, 1);
-  };
-
-  RemoteKeyboardDriver.prototype.getKeyDownListeners = function () {
-    return this.keyDownListeners;
-  };
-
-  RemoteKeyboardDriver.prototype.keyDown = function (keyCode) {
-    var self = this;
-    for (var i = 0; i < this.keyDownListeners.length; i++) {
-      this.keyDownListeners[i].keyDown(keyCode);
-    }    
-  };
-
-  return RemoteKeyboardDriver;
-}();
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11160,7 +11172,7 @@ module.exports = function() {
 
   return Firework;
 }();
-},{"./ring.js":15,"./sparkle.js":16}],15:[function(require,module,exports){
+},{"./ring.js":17,"./sparkle.js":18}],17:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11239,7 +11251,7 @@ module.exports = function() {
 
   return Ring;
 }();
-},{"../gamespace.js":32,"./sparkle.js":16}],16:[function(require,module,exports){
+},{"../gamespace.js":35,"./sparkle.js":18}],18:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11294,7 +11306,7 @@ module.exports = function() {
 
   return Sparkle;
 }();
-},{"../drawableObjects/square.js":8,"../gamespace.js":32}],17:[function(require,module,exports){
+},{"../drawableObjects/square.js":8,"../gamespace.js":35}],19:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11316,14 +11328,14 @@ module.exports = {
     return Alpha.values().includes(value);
   }
 };
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 
 var DisplayConstants = {
   TEXT_SIZE: 16,
   TEXT_MARGIN: 20
 };
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 
 module.exports = function() {
@@ -11410,7 +11422,7 @@ module.exports = function() {
 
   return GameMaster;
 }();
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 var GameMaster = require("./gameMaster.js");
 var Display = require('../display.js');
@@ -11460,13 +11472,14 @@ module.exports = function() {
 
   return MultiplayerOnlineGameMaster;
 }();
-},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/multiplayerOnlineMazeGame.js":30,"./gameMaster.js":19}],21:[function(require,module,exports){
+},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/multiplayerOnlineMazeGame.js":32,"./gameMaster.js":21}],23:[function(require,module,exports){
 "use strict";
 var GameMaster = require("./gameMaster.js");
 var Display = require('../display.js');
 var HallGame = require('../games/hallGame.js');
 var MazeGame = require('../games/mazeGame.js');
 var DisplayDriver = require('../drivers/displayDriver.js');
+var SplitMazeGame = require('../games/splitMazeGame.js');
 
 /**
  * Interface GameMaster
@@ -11474,7 +11487,7 @@ var DisplayDriver = require('../drivers/displayDriver.js');
 module.exports = function() {
   var NeuralActivityGameMaster = function NeuralActivityGameMaster(canvas1, canvas2, canvas3, canvas4, canvas5, canvas6, keyboardDriver, soundDriver) {
     GameMaster.call(this); // super()
-    var gridLength = 20;
+    var gridLength = 10;
     var squareLength = 20;
     var hallLength = 6;
 
@@ -11497,7 +11510,7 @@ module.exports = function() {
     this.addGame(new HallGame(keyboardDriver, display1, display2, gridLength, hallLength, squareLength));
     // this.addGame(new RemedialGame(keyboardDriver, display1, display2, gridLength, hallLength, squareLength));
     this.addGame(new MazeGame(keyboardDriver, display1, display3, gridLength, squareLength));
-    // this.addGame(new MazeGame.SplitMazeGame(keyboardDriver, display1, display2, display3, gridLength, squareLength));
+    this.addGame(new SplitMazeGame(keyboardDriver, display1, display2, display3, gridLength, squareLength));
     // this.addGame(new MazeGame.LightningMazeGame(keyboardDriver, reverseLightningDisplay, display3, gridLength, squareLength));
     // this.addGame(new MazeGame.LightningMazeGame(keyboardDriver, lightningDisplay, display3, gridLength, squareLength));
     // this.addGame(new ChaseMazeGame(keyboardDriver, display1, display3, gridLength, squareLength));
@@ -11508,7 +11521,7 @@ module.exports = function() {
   NeuralActivityGameMaster.prototype.constructor = NeuralActivityGameMaster;
   return NeuralActivityGameMaster;
 }();
-},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/hallGame.js":28,"../games/mazeGame.js":29,"./gameMaster.js":19}],22:[function(require,module,exports){
+},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/hallGame.js":30,"../games/mazeGame.js":31,"../games/splitMazeGame.js":33,"./gameMaster.js":21}],24:[function(require,module,exports){
 "use strict";
 var GameMaster = require("./gameMaster.js");
 var Display = require('../display.js');
@@ -11557,7 +11570,7 @@ module.exports = function() {
 
   return TwoPlayerGameMaster;
 }();
-},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/twoPlayerMazeGame.js":31,"./gameMaster.js":19}],23:[function(require,module,exports){
+},{"../display.js":2,"../drivers/displayDriver.js":11,"../games/twoPlayerMazeGame.js":34,"./gameMaster.js":21}],25:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11675,7 +11688,7 @@ module.exports = function () {
   };
   return Entity;
 }();
-},{"../drawableObjects/square.js":8,"../gamespace.js":32,"../gridTranslator.js":33}],24:[function(require,module,exports){
+},{"../drawableObjects/square.js":8,"../gamespace.js":35,"../gridTranslator.js":36}],26:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11716,7 +11729,7 @@ module.exports = function() {
 
   return Hall;
 }();
-},{"./maze.js":25}],25:[function(require,module,exports){
+},{"./maze.js":27}],27:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11786,7 +11799,7 @@ module.exports = function() {
 
   return Maze;
 }();
-},{"../drawableObjects/drawableObject.js":5,"../enums/alpha.js":17,"../gamespace.js":32,"../gridTranslator.js":33}],26:[function(require,module,exports){
+},{"../drawableObjects/drawableObject.js":5,"../enums/alpha.js":19,"../gamespace.js":35,"../gridTranslator.js":36}],28:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11818,7 +11831,7 @@ module.exports = function () {
 
   return Player;
 }();
-},{"./entity.js":23}],27:[function(require,module,exports){
+},{"./entity.js":25}],29:[function(require,module,exports){
 "use strict";
 
 /**
@@ -11887,7 +11900,7 @@ Game.prototype.validMove = function (x, y, direction) {
 };
 
 module.exports = Game;
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
 var Alpha = require('../enums/alpha.js');
@@ -11903,7 +11916,7 @@ var Circle = require("../drawableObjects/circle.js");
 var TypedText = require("../drawableObjects/typedText.js");
 
 module.exports = function() {
-  let HallGameStates = {
+  var HallGameStates = {
     BEGINNING: 1,
     MIDDLE: 2,
     END: 3
@@ -12040,7 +12053,7 @@ module.exports = function() {
 
   return HallGame;
 }();
-},{"../drawableObjects/blinkingCursor.js":3,"../drawableObjects/circle.js":4,"../drawableObjects/text.js":9,"../drawableObjects/typedText.js":10,"../enums/alpha.js":17,"../enums/displayConstants.js":18,"../gameObjects/hall.js":24,"../gameObjects/player.js":26,"../gamespace.js":32,"../gridTranslator.js":33,"./game.js":27}],29:[function(require,module,exports){
+},{"../drawableObjects/blinkingCursor.js":3,"../drawableObjects/circle.js":4,"../drawableObjects/text.js":9,"../drawableObjects/typedText.js":10,"../enums/alpha.js":19,"../enums/displayConstants.js":20,"../gameObjects/hall.js":26,"../gameObjects/player.js":28,"../gamespace.js":35,"../gridTranslator.js":36,"./game.js":29}],31:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12196,7 +12209,7 @@ module.exports = function () {
 
   return MazeGame;
 }();
-},{"../drawableObjects/circle.js":4,"../effects/firework.js":14,"../gameObjects/maze.js":25,"../gameObjects/player.js":26,"../gamespace.js":32,"../mazeData.js":35,"./game.js":27}],30:[function(require,module,exports){
+},{"../drawableObjects/circle.js":4,"../effects/firework.js":16,"../gameObjects/maze.js":27,"../gameObjects/player.js":28,"../gamespace.js":35,"../mazeData.js":38,"./game.js":29}],32:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12355,7 +12368,67 @@ module.exports = function () {
 
   return MultiplayerOnlineMazeGame;
 }();
-},{"../drawableObjects/circle.js":4,"../effects/firework.js":14,"../gameObjects/maze.js":25,"../gameObjects/player.js":26,"../games/mazeGame.js":29,"../gamespace.js":32,"../mazeData.js":35,"./game.js":27}],31:[function(require,module,exports){
+},{"../drawableObjects/circle.js":4,"../effects/firework.js":16,"../gameObjects/maze.js":27,"../gameObjects/player.js":28,"../games/mazeGame.js":31,"../gamespace.js":35,"../mazeData.js":38,"./game.js":29}],33:[function(require,module,exports){
+"use strict";
+
+var MazeGame = require('../games/mazeGame.js');
+var Game = require('./game.js');
+var HorizontalDisplay = require('../drivers/displays/horizontalDisplay.js');
+var VerticalDisplay = require('../drivers/displays/verticalDisplay.js');
+
+module.exports = function() {
+  var SplitMazeGame = function (keyboardDriver, mazeXDisplay, mazeYDisplay, neuralDisplay, gridLength, squareLength) {
+    var self = this;
+    Game.call(self);
+    this.gridLength = gridLength;
+    this.squareLength = squareLength;
+    this.mazeXDisplay = mazeXDisplay;
+    this.mazeYDisplay = mazeYDisplay;
+    this.neuralDisplay = neuralDisplay;
+    this.displays = [mazeXDisplay, mazeYDisplay, neuralDisplay];
+    this.keyboardDriver = keyboardDriver;
+  };
+
+  // Explicit Inheritance
+  SplitMazeGame.prototype = Object.create(MazeGame.prototype);
+  SplitMazeGame.prototype.constructor = SplitMazeGame;
+
+  SplitMazeGame.prototype.clearDisplays = function () {
+    this.horizontalDisplay = new HorizontalDisplay(this.drawMap, this.squareLength);
+    this.verticalDisplay = new VerticalDisplay(this.drawMap, this.squareLength);
+
+    this.mazeXDisplay.clear();
+    this.mazeYDisplay.clear();
+    this.mazeXDisplay.addObject(this.horizontalDisplay);
+    this.mazeYDisplay.addObject(this.verticalDisplay);
+    this.mazeXDisplay.addObject(this.player);
+    this.mazeXDisplay.addObject(this.goalObject);
+    this.mazeYDisplay.addObject(this.player);
+    this.mazeYDisplay.addObject(this.goalObject);
+    this.drawLoop();
+  };
+
+  SplitMazeGame.prototype.drawLoop = function () {
+    this.mazeXDisplay.render();
+    this.mazeYDisplay.render();
+  };
+
+  SplitMazeGame.prototype.win = function () {
+    var self = this;
+    var secondFlashDuration = 500;
+    var secondFlashDelay = 75;
+    var firstFlashDuration = secondFlashDelay + secondFlashDuration;
+    this.mazeXDisplay.flash("blue", firstFlashDuration, function () {});
+    setTimeout(function () {
+      self.mazeYDisplay.flash("blue", secondFlashDuration, function () {
+        self.gameEnd({ won: true });
+      });
+    }, secondFlashDelay);
+  };
+
+  return SplitMazeGame;
+}();
+},{"../drivers/displays/horizontalDisplay.js":12,"../drivers/displays/verticalDisplay.js":14,"../games/mazeGame.js":31,"./game.js":29}],34:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12490,7 +12563,7 @@ module.exports = function () {
 
   return TwoPlayerMazeGame;
 }();
-},{"../drawableObjects/circle.js":4,"../effects/firework.js":14,"../gameObjects/maze.js":25,"../gameObjects/player.js":26,"../games/mazeGame.js":29,"../gamespace.js":32,"../mazeData.js":35,"./game.js":27}],32:[function(require,module,exports){
+},{"../drawableObjects/circle.js":4,"../effects/firework.js":16,"../gameObjects/maze.js":27,"../gameObjects/player.js":28,"../games/mazeGame.js":31,"../gamespace.js":35,"../mazeData.js":38,"./game.js":29}],35:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12524,7 +12597,7 @@ module.exports = {
     }
   }
 };
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 
 /**
@@ -12588,12 +12661,11 @@ module.exports = function() {
   
   return GridTranslator;
 }();
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 
 var $ = require("jquery");
 var KeyboardDriver = require('./drivers/keyboardDriver.js');
-var RemoteKeyboardDriver = require('./drivers/remoteKeyboardDriver.js');
 var TwoPlayerGameMaster = require('./gameMasters/twoPlayerGameMaster.js');
 var MultiplayerOnlineGameMaster = require('./gameMasters/multiplayerOnlineGameMaster.js');
 var NeuralActivityGameMaster = require('./gameMasters/neuralActivityGameMaster.js');
@@ -12611,20 +12683,10 @@ module.exports = function() {
     return this.startTwoPlayer(maze);
   };
 
-  HollowCart.prototype.startTwoPlayerRemote = function (maze, remoteKeyDownListener) {
-    this.keyboardDriver = new RemoteKeyboardDriver(document);
-    this.addRemoteKeyDownListener(remoteKeyDownListener);
-    return this.startTwoPlayer(maze);
-  };
-
   HollowCart.prototype.startMultiplayerMazeGame = function (maze, networkDriver, playerNumber) {
     this.keyboardDriver = new KeyboardDriver(document);
     return this.startMultiplayer(maze, networkDriver, playerNumber);
   };
-
-  HollowCart.prototype.addRemoteKeyDownListener = function(listener) {
-    this.keyboardDriver.addRemoteKeyDownListener(listener);
-  }
 
   HollowCart.prototype.startTwoPlayer = function (maze) {
     if (this.gameMaster != null) {
@@ -12694,14 +12756,21 @@ module.exports = function() {
     keyboardDriver = new KeyboardDriver(document);
     soundDriver = null;
 
-    gameMaster = new NeuralActivityGameMaster(canvas1, canvas2, canvas3, canvas4, canvas5, canvas6, keyboardDriver, soundDriver);
+    this.gameMaster = new NeuralActivityGameMaster(canvas1, canvas2, canvas3, canvas4, canvas5, canvas6, keyboardDriver, soundDriver);
   }
 
+  HollowCart.prototype.next = function () {
+    this.gameMaster.next();
+  }
+
+  HollowCart.prototype.previous = function () {
+    this.gameMaster.previous();
+  }
 
   return HollowCart;
 }();
 
-},{"./drivers/keyboardDriver.js":12,"./drivers/remoteKeyboardDriver.js":13,"./gameMasters/multiplayerOnlineGameMaster.js":20,"./gameMasters/neuralActivityGameMaster.js":21,"./gameMasters/twoPlayerGameMaster.js":22,"jquery":1}],35:[function(require,module,exports){
+},{"./drivers/keyboardDriver.js":15,"./gameMasters/multiplayerOnlineGameMaster.js":22,"./gameMasters/neuralActivityGameMaster.js":23,"./gameMasters/twoPlayerGameMaster.js":24,"jquery":1}],38:[function(require,module,exports){
 'use strict';
 
 /**
@@ -12802,9 +12871,9 @@ module.exports = {
     return { horizontalSpaces: horizontalSpaces, verticalSpaces: verticalSpaces };
   }
 };
-},{}],36:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 (function (global){
 global.$ = require("jquery");
 global.HollowCart = require('./engine/hollowCart.js');
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./engine/hollowCart.js":34,"jquery":1}]},{},[36]);
+},{"./engine/hollowCart.js":37,"jquery":1}]},{},[39]);
