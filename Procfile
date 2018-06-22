@@ -1,1 +1,1 @@
-web: MIX_ENV=prod mix phx.server
+web: elixir -pa _build/prod/consolidated -S mix phoenix.server
