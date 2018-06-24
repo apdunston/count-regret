@@ -15275,8 +15275,6 @@ module.exports = function() {
   }
 
   MazeGameMaster.prototype.setGridLength = function(gridLength) {
-    console.log("set master grid length from " + this.gridLength + " to " + gridLength);
-    
     this.gridLength = gridLength;    
     for (var x = 0; x < this.games.length; x++) {
       this.games[x].setGridLength(gridLength);
@@ -15999,7 +15997,6 @@ module.exports = function () {
   MazeGame.prototype = Object.create(Game.prototype);
 
   MazeGame.prototype.setGridLength = function(gridLength) {
-    console.log("set grid length from " + this.gridLength + " to " + gridLength);
     this.gridLength = gridLength;    
     return this;
   }
@@ -16175,7 +16172,6 @@ module.exports = function () {
     networkDriver.setGame(this);
     this.playerNumber = playerNumber;
 
-    console.log("MultiplayerOnlineMazeGame constructor network driver: ", networkDriver);
     if (playerNumber == null) {
       throw("Player number cannot be null");
     }
@@ -16184,10 +16180,8 @@ module.exports = function () {
   MultiplayerOnlineMazeGame.prototype = Object.create(MazeGame.prototype);
 
   MultiplayerOnlineMazeGame.prototype.start = function (maze) {
-    console.log("starting gridlength: ", this.gridLength);
     Game.prototype.start.call(this);
     this.reset(maze);
-    console.log(this.networkDriver);
     this.networkDriver.sendMaze(this.maze);
   };
 
@@ -16677,14 +16671,30 @@ module.exports = function() {
     return this.gameMaster.getCurrentGame().getMaze();
   };
 
-  HollowCart.prototype.startMultiplayer = function(maze, networkDriver, playerNumber, detectMobile) {
-    console.log("Starting multiplayer with networkDriver: ", networkDriver);
-    var md = new MobileDetect(window.navigator.userAgent);
+  HollowCart.prototype.zoomOutMobile = function() {
+    const viewport = document.querySelector('meta[name="viewport"]');
 
-    var canvasLength = detectMobile && md.mobile() ? 900 : 400;
+    if ( viewport ) {
+      viewport.content = 'initial-scale=1';
+      viewport.content = 'width=device-width';
+    }
+  }
+
+  HollowCart.prototype.startMultiplayer = function(maze, networkDriver, playerNumber, detectMobile) {
+    // var md = new MobileDetect(window.navigator.userAgent);
+    // var canvasLength = detectMobile && md.mobile() ? 900 : 400;
+    var canvasLength = window.innerWidth;
+    if (window.innerHeight < canvasLength) {
+      canvasLength = window.innerHeight;
+    }
+
+    canvasLength = canvasLength - 5;
+
     var gridLength = 12;
 
     this.createGameMaster(maze, networkDriver, playerNumber, canvasLength, gridLength);
+    // this.zoomOutMobile();
+
     return this.gameMaster.getCurrentGame().getMaze();
   }
 
@@ -16714,6 +16724,7 @@ module.exports = function() {
       .setSquareLength(Math.floor(canvasLength / gridLength))
       .start(maze);
   };
+
 
   HollowCart.prototype.startNeuralActivity = function () {
     var canv, display1, display2, display3, display4, mazeGame, 
