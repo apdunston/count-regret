@@ -1,10 +1,10 @@
 <div class="controls">
   <div>
-    <button class="start-button">Start Game</button>
+    <button class="start-button" style="background-color: white">Start New Game</button>
   </div>
   <div>
     <input type="text" name="game-name">
-    <button class="join-button">Join Game</button>
+    <button class="join-button" style="background-color: white">Join Game</button>
   </div>
 </div>
 <br>
