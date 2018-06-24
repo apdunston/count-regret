@@ -14,7 +14,7 @@ defmodule CountRegret.GameMaker do
 
   def get_count, do: GenServer.call(:game_maker, :get_count)
 
-  def make_game(maze), do: GenServer.call(:game_maker, {:make_game, maze})
+  def make_game(), do: GenServer.call(:game_maker, :make_game)
 
   def get_game(name), do: GenServer.call(:game_maker, {:get_game, name})
 
@@ -31,9 +31,9 @@ defmodule CountRegret.GameMaker do
     {:reply, number, state}
   end
 
-  def handle_call({:make_game, maze}, _from, %{counter: counter, games: games} = state) do
+  def handle_call(:make_game, _from, %{counter: counter, games: games} = state) do
     current_count = counter |> increment() |> Integer.to_string
-    {:ok, game_pid} = Game.start_link({current_count, maze})
+    {:ok, game_pid} = Game.start_link(current_count)
     games = Map.put(games, current_count, game_pid)
     state = %{state | games: games}
     {:reply, game_pid, state}

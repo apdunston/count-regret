@@ -23,6 +23,7 @@ An online, multiplayer maze game.
 - [x] Have JS send the keyboard events
 - [x] Have Elixir send out the moves (move player)
 - [x] Have JS rely on the moves elixir sends
+- [] Separate join_channel from set maze
 - [] Have JS send win game (win game)
 - [] Have Elixir send timeout (timeout game)
 

@@ -7,8 +7,8 @@ defmodule CountRegret.Game do
 
   ## Client API
 
-  def start_link({name, maze}, opts \\ []),
-    do: GenServer.start_link(__MODULE__, {:ok, name, maze}, opts)
+  def start_link(name, opts \\ []),
+    do: GenServer.start_link(__MODULE__, name, opts)
 
   def get_name(pid), do: GenServer.call(pid, :get_name)
 
@@ -19,12 +19,17 @@ defmodule CountRegret.Game do
   def set_player_position(pid, player_number, x, y),
     do: GenServer.call(pid, {:set_player_position, player_number, x, y})
 
+  def set_maze(pid, maze),
+    do: GenServer.cast(pid, {:set_maze, maze})
+
   def get_players(pid), do: GenServer.call(pid, :get_players)
+
+  def reset_player_positions(pid), do: GenServer.cast(pid, :reset_player_positions)
 
   ## Server Callbacks
 
-  def init({:ok, name, maze}) do
-    {:ok, %{name: name, maze: maze, players: []}}
+  def init(name) do
+    {:ok, %{name: name, maze: nil, players: []}}
   end
 
   def handle_call(:get_name, _from, %{name: name} = state) do
@@ -53,6 +58,14 @@ defmodule CountRegret.Game do
 
   def handle_call(:get_players, _from, %{players: players} = state),
     do: {:reply, players, state}
+
+  def handle_cast({:set_maze, maze}, state),
+    do: {:noreply, %{state | maze: maze}}
+
+  def handle_cast(:reset_player_positions, %{players: players} = state),
+    do: {:noreply, %{state | players: Enum.map(players, &(%{&1 | x: 0, y: 0}))}}
+
+
 
   ## Helper Functions”
 

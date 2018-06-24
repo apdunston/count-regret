@@ -1,13 +1,12 @@
 import {Socket} from "phoenix"
+import {NetworkDriver} from "./networkDriver.js"
 import $ from "jquery"
-
 let socket = new Socket("/socket", {params: {token: window.userToken}})
-
 socket.connect()
 
 let lobby_channel = socket.channel("game:lobby", {})
 let game_channel = null;
-let hollow_Cart = new HollowCart();
+let hollow_cart = new HollowCart();
 let player_number = 24601;
 
 let join_game = function() {
@@ -16,8 +15,8 @@ let join_game = function() {
   join_game_channel(game_name, resp => { 
     console.log("Joined game successfully", resp) 
     display_game(resp);
-    hollow_Cart.startMultiplayerMazeGame(resp.maze, networkDriver, resp.player_number);
-    networkDriver.receive(resp);
+    hollow_cart.startMultiplayer(resp.maze, NetworkDriver, resp.player_number);
+    NetworkDriver.receive(resp);
   });
 };
 
@@ -31,43 +30,32 @@ let join_game_channel = function(game_name, ok_function) {
     console.log("Received key_down broadcast: ", payload);
   })
   game_channel.on("positions", payload => {
-    networkDriver.receive(payload);
+    NetworkDriver.receive(payload);
+  })
+  game_channel.on("set_maze", payload => {
+    NetworkDriver.receiveMaze(payload);
   })
   game_channel.join()
     .receive("ok", ok_function)
     .receive("error", resp => { console.log("Unable to join game", resp) })
+
+  NetworkDriver.setChannel(game_channel);
 }
 
 let start_game = function() {
   console.log("Starting game...");
-  var maze = hollow_Cart.startMultiplayerMazeGame(maze, networkDriver, 0);
-  lobby_channel.push("new_game", maze)
+  lobby_channel.push("new_game")
     .receive("ok", resp => { 
       console.log("new_game response", resp);
       display_game(resp);
       join_game_channel(resp.game_name, arg => { 
-        console.log("Joined game successfully", arg) 
-        networkDriver.receive(arg);
+        console.log("Started game successfully", arg) 
+        var maze = hollow_cart.startMultiplayer(maze, NetworkDriver, 0);
+        NetworkDriver.setGame(hollow_cart.getCurrentGame());
+        NetworkDriver.sendMaze(maze);
+        NetworkDriver.receive(arg);
       });
     });  
-}
-
-let networkDriver = {
-  setMazeGame: function(mazeGame) {
-    this.mazeGame = mazeGame;
-  },
-
-  send: function(event) {
-    // game_channel.push("key_down", {player: player_number, key_code: event.keyCode})
-    console.log("sending event: ", event);
-    game_channel.push("move", {player_number: event.playerNumber, x: event.x, y: event.y});
-    console.log("Count Regret got this: ", event);
-  },
-
-  receive: function(event) {
-    console.log("Positions: ", event.players);
-    this.mazeGame.setPositions(event.players);
-  }
 }
 
 $(function() {
