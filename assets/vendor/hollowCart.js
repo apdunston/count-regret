@@ -15686,7 +15686,7 @@ module.exports = function() {
       canvasLength = window.innerHeight;
     }
 
-    canvasLength = canvasLength - 5;
+    canvasLength = canvasLength - 75;
 
     var gridLength = 12;
 
