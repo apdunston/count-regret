@@ -13124,7 +13124,7 @@ module.exports = function() {
     time = time ? time : 200;
     var flashObject = new Square(0, 0, this.width, color);
     this.objects.push(flashObject);
-    setTimeout(function () {
+    setTimeout(function() {
       self.objects.pop();
       if (callback) {
         callback();
@@ -13132,7 +13132,7 @@ module.exports = function() {
     }, time);
   };
 
-  Display.prototype.render = function () {
+  Display.prototype.render = function() {
     if (this.backgroundOnly) {
       return;
     }
@@ -13149,7 +13149,7 @@ module.exports = function() {
     }
   };
 
-  Display.prototype.start = function () {
+  Display.prototype.start = function() {
     if (this.drawInterval !== null) {
       throw "Cannot start a running display";
     }
@@ -13160,12 +13160,12 @@ module.exports = function() {
 
     var milliseconds = 1000 / this.framesPerSecond;
     var self = this;
-    this.drawInterval = setInterval(function () {
+    this.drawInterval = setInterval(function() {
       self.render();
     }, milliseconds);
   };
 
-  Display.prototype.stop = function () {
+  Display.prototype.stop = function() {
     if (this.drawInterval === null) {
       throw "Cannot stop a stopped display";
     }
@@ -13177,7 +13177,7 @@ module.exports = function() {
     this.drawInterval = null;
   };
 
-  Display.prototype.clear = function () {
+  Display.prototype.clear = function() {
     this.objects = [];
     this.addObject(this.backgroundObject);
     this.render();
@@ -13195,7 +13195,7 @@ module.exports = function() {
     }
   }
 
-  Display.prototype.getLength = function () {
+  Display.prototype.getLength = function() {
     return this.width;
   };
 
@@ -13298,7 +13298,7 @@ module.exports = function() {
 
   DrawableObject.prototype.constructor = DrawableObject;
 
-  DrawableObject.prototype.isDone = function () {
+  DrawableObject.prototype.isDone = function() {
     return this.isDoneValue;
   };
 
@@ -13310,15 +13310,15 @@ module.exports = function() {
     this.isDoneValue = value;
   };
 
-  DrawableObject.prototype.fadeIn = function () {
+  DrawableObject.prototype.fadeIn = function() {
     this.state = DrawableObjectState.FADING_IN;
   };
 
-  DrawableObject.prototype.fadeOut = function () {
+  DrawableObject.prototype.fadeOut = function() {
     this.state = DrawableObjectState.FADING_OUT;
   };
 
-  DrawableObject.prototype.draw = function () {
+  DrawableObject.prototype.draw = function() {
     if (this.state === DrawableObjectState.FADING_IN) {
       this.fadeInStep();
     }
@@ -13328,7 +13328,7 @@ module.exports = function() {
     }
   };
 
-  DrawableObject.prototype.fadeInStep = function () {
+  DrawableObject.prototype.fadeInStep = function() {
     if (this.alpha >= Alpha.OPAQUE) {
       this.state = DrawableObjectState.STATIC;
       this.alpha = Alpha.OPAQUE;
@@ -13338,7 +13338,7 @@ module.exports = function() {
     this.alpha += this.fadeDelta;
   };
 
-  DrawableObject.prototype.fadeOutStep = function () {
+  DrawableObject.prototype.fadeOutStep = function() {
     if (this.alpha <= this.fadeDelta) {
       this.alpha = Alpha.INVISIBLE;
       this.state = DrawableObjectState.STATIC;
@@ -13377,7 +13377,7 @@ module.exports = {
   COURIER_NEW: "Courier New",
   SERIF: "serif",
   SANS_SERIF: "sans-serif",
-  values: function () {
+  values: function() {
     var self = this;
     return Object.keys(self).map(
       function (key) {
@@ -13599,7 +13599,7 @@ module.exports = function() {
     }
   };
 
-  TypedText.prototype.advanceTypingFrame = function () {
+  TypedText.prototype.advanceTypingFrame = function() {
     if (this.typingFrame === this.framesPerLetter) {
       this.typingFrame = 0;
       this.addLetter();
@@ -13609,7 +13609,7 @@ module.exports = function() {
     this.typingFrame += 1;
   };
 
-  TypedText.prototype.addLetter = function () {
+  TypedText.prototype.addLetter = function() {
     this.text += this.fullText.substr(this.text.length, 1);
     if (this.text.length === this.fullText.length) {
       this.typingState = TypedTextState.TYPED;
@@ -13628,7 +13628,7 @@ module.exports = function() {
 
 var Font = require('../drawableObjects/font.js');
 
-module.exports = function () {
+module.exports = function() {
   var _alphaWrap = function _alphaWrap(self, alpha, fn) {
     if (alpha !== undefined) {
       self.context.globalAlpha = alpha;
@@ -13646,7 +13646,7 @@ module.exports = function () {
 
   DisplayDriver.prototype.constructor = DisplayDriver;
 
-  DisplayDriver.prototype.getWidth = function () {
+  DisplayDriver.prototype.getWidth = function() {
     return this.canvas.width;
   };
 
@@ -13747,17 +13747,17 @@ module.exports = function() {
   LightningDisplay.prototype = Object.create(Display.prototype);
   LightningDisplay.prototype.constructor = LightningDisplay;
 
-  LightningDisplay.prototype.applyDelta = function () {
+  LightningDisplay.prototype.applyDelta = function() {
     this.currentAlpha -= this.delta;
   };
 
-  LightningDisplay.prototype.clear = function () {
+  LightningDisplay.prototype.clear = function() {
     this.lightningObjects = [];
     this.objects = [];
     this.addObject(this.backgroundObject);
   };
 
-  LightningDisplay.prototype.render = function () {
+  LightningDisplay.prototype.render = function() {
     Display.prototype.render.call(this);
 
     if (this.lightningObjects.length > 0 && this.flashing) {
@@ -13770,7 +13770,7 @@ module.exports = function() {
     this.drawLightning();
   };
 
-  LightningDisplay.prototype.advanceLightning = function () {
+  LightningDisplay.prototype.advanceLightning = function() {
     this.currentFlashFrame += 1;
 
     if (this.flashFrames.includes(this.currentFlashFrame)) {
@@ -13786,16 +13786,16 @@ module.exports = function() {
     this.applyDelta();
   };
 
-  LightningDisplay.prototype.grabFlashFrames = function () {
+  LightningDisplay.prototype.grabFlashFrames = function() {
     var index = Math.floor(Math.random() * this.flashProgressions.length);
     this.flashFrames = this.flashProgressions[index];
   };
 
-  LightningDisplay.prototype.lightningDoneCondition = function () {
+  LightningDisplay.prototype.lightningDoneCondition = function() {
     this.currentAlpha <= this.endingAlpha;
   };
 
-  LightningDisplay.prototype.drawLightning = function () {
+  LightningDisplay.prototype.drawLightning = function() {
     if (this.lightningDoneCondition()) {
       this.currentAlpha = this.endingAlpha;
     }
@@ -13809,12 +13809,12 @@ module.exports = function() {
     }
   };
 
-  LightningDisplay.prototype.resetLightning = function () {
+  LightningDisplay.prototype.resetLightning = function() {
     this.flashing = false;
     this.currentFlashFrame = 0;
   };
 
-  LightningDisplay.prototype.goLightning = function () {
+  LightningDisplay.prototype.goLightning = function() {
     var self = this;
     this.grabFlashFrames();
     this.currentAlpha = this.startingAlpha;
@@ -13844,11 +13844,11 @@ module.exports = function() {
   ReverseLightningDisplay.prototype = Object.create(LightningDisplay.prototype);
   ReverseLightningDisplay.prototype.constructor = ReverseLightningDisplay;
 
-  ReverseLightningDisplay.prototype.applyDelta = function () {
+  ReverseLightningDisplay.prototype.applyDelta = function() {
     this.currentAlpha += this.delta;
   };
 
-  ReverseLightningDisplay.prototype.lightningDoneCondition = function () {
+  ReverseLightningDisplay.prototype.lightningDoneCondition = function() {
     this.currentAlpha >= this.endingAlpha;
   };
 
@@ -13874,7 +13874,7 @@ module.exports = function() {
     }
   };
 
-  SubDisplay.prototype.isDone = function () {
+  SubDisplay.prototype.isDone = function() {
     return false;
   };
 
@@ -13925,7 +13925,7 @@ module.exports = function() {
     this.keyDownListeners.splice(index, 1);
   };
 
-  KeyboardDriver.prototype.getKeyDownListeners = function () {
+  KeyboardDriver.prototype.getKeyDownListeners = function() {
     return this.keyDownListeners;
   };
 
@@ -13995,7 +13995,7 @@ module.exports = function() {
     this.rings = [];
   };
 
-  Firework.prototype.getDisplayObjects = function () {
+  Firework.prototype.getDisplayObjects = function() {
     return [this];
   };
 
@@ -14018,7 +14018,7 @@ module.exports = function() {
     }
   };
 
-  Firework.prototype.isDone = function () {
+  Firework.prototype.isDone = function() {
     // return false;
     return this.frameCount > this.maxFrameCount;
   };
@@ -14098,7 +14098,7 @@ module.exports = function() {
     }
   };
 
-  Ring.prototype.isDone = function () {
+  Ring.prototype.isDone = function() {
     return this.isDoneValue;
   };
 
@@ -14130,11 +14130,11 @@ module.exports = function() {
     this.display.addObject(this);
   };
 
-  Spark.prototype.isHalfDone = function () {
+  Spark.prototype.isHalfDone = function() {
     return this.frameCount > this.maxFrameCount / 2;
   };
 
-  Spark.prototype.isDone = function () {
+  Spark.prototype.isDone = function() {
     return this.frameCount > this.maxFrameCount;
   };
 
@@ -14161,7 +14161,7 @@ module.exports = function() {
     }
   };
 
-  Spark.prototype.getFrameCount = function () {
+  Spark.prototype.getFrameCount = function() {
     return this.frameCount;
   };
 
@@ -14195,11 +14195,11 @@ module.exports = function() {
     return Gamespace.rainbow[Math.floor(count / this.framesPerColorChange) + this.startColor % Gamespace.rainbow.length];
   };
 
-  Sparkle.prototype.isHalfDone = function () {
+  Sparkle.prototype.isHalfDone = function() {
     return this.frameCount > this.maxFrameCount / 2;
   };
 
-  Sparkle.prototype.isDone = function () {
+  Sparkle.prototype.isDone = function() {
     return this.frameCount > this.maxFrameCount;
   };
 
@@ -14216,7 +14216,7 @@ module.exports = function() {
     }
   };
 
-  Sparkle.prototype.getFrameCount = function () {
+  Sparkle.prototype.getFrameCount = function() {
     return this.frameCount;
   };
 
@@ -14234,7 +14234,7 @@ module.exports = {
   TRANSLUCENT: 0.4,
   INVISIBLE: 0.0,
   
-  values: function () {
+  values: function() {
     return Object.keys(Alpha).map(function (key) {
       return Alpha[key];
     })
@@ -14281,7 +14281,7 @@ module.exports = function() {
     this.startCurrentGame(data);
   };
 
-  GameMaster.prototype.stop = function () {
+  GameMaster.prototype.stop = function() {
     this.stopCurrentGame();
     this.currentGameIndex = null;
   };
@@ -14308,7 +14308,7 @@ module.exports = function() {
     this.startCurrentGame(data);
   };
 
-  GameMaster.prototype.stopCurrentGame = function () {
+  GameMaster.prototype.stopCurrentGame = function() {
     if (this.currentGameIndex !== null) {
       this.games[this.currentGameIndex].stop();
     }
@@ -14320,11 +14320,11 @@ module.exports = function() {
     }
   };
 
-  GameMaster.prototype.onLastGame = function () {
+  GameMaster.prototype.onLastGame = function() {
     return this.currentGameIndex == this.games.length - 1;
   };
 
-  GameMaster.prototype.onFirstGame = function () {
+  GameMaster.prototype.onFirstGame = function() {
     return this.currentGameIndex == 0;
   };
 
@@ -14618,7 +14618,7 @@ var GridTranslator = require('../gridTranslator.js');
 var Square = require('../drawableObjects/square.js');
 var Gamespace = require('../gamespace.js');
 
-module.exports = function () {
+module.exports = function() {
 
   // Private
   var _wrapPosition = function _wrapPosition(self) {
@@ -14652,7 +14652,7 @@ module.exports = function () {
     this.positionDrawableObject();
   };
 
-  Entity.prototype.positionDrawableObject = function () {
+  Entity.prototype.positionDrawableObject = function() {
     var xPixels = this.gridTranslator.xInPixels(this.x) + this.bump;
     var yPixels = this.gridTranslator.yInPixels(this.y) + this.bump;
     this.square.setPosition(xPixels, yPixels);
@@ -14694,31 +14694,31 @@ module.exports = function () {
     return this.x === entity.getX() && this.y === entity.getY();
   };
 
-  Entity.prototype.getX = function () {
+  Entity.prototype.getX = function() {
     return this.x;
   };
-  Entity.prototype.getY = function () {
+  Entity.prototype.getY = function() {
     return this.y;
   };
-  Entity.prototype.up = function () {
+  Entity.prototype.up = function() {
     return this.move(Gamespace.UP);
   };
-  Entity.prototype.down = function () {
+  Entity.prototype.down = function() {
     return this.move(Gamespace.DOWN);
   };
-  Entity.prototype.left = function () {
+  Entity.prototype.left = function() {
     return this.move(Gamespace.LEFT);
   };
-  Entity.prototype.right = function () {
+  Entity.prototype.right = function() {
     return this.move(Gamespace.RIGHT);
   };
-  Entity.prototype.isDone = function () {
+  Entity.prototype.isDone = function() {
     return false;
   };
   Entity.prototype.draw = function (renderer) {
     this.square.draw(renderer);
   };
-  Entity.prototype.getDisplayObjects = function () {
+  Entity.prototype.getDisplayObjects = function() {
     return [this.square];
   };
   return Entity;
@@ -14742,7 +14742,7 @@ module.exports = function() {
   Hall.prototype = Object.create(Maze.prototype);
   Hall.prototype.constructor = Hall;
 
-  Hall.prototype.makeDrawMap = function () {
+  Hall.prototype.makeDrawMap = function() {
     var horizontalSpaces = [];
     var verticalSpaces = [[], []];
 
@@ -14814,11 +14814,11 @@ module.exports = function() {
       return this.y;
   }
 
-  Key.prototype.isDone = function () {
+  Key.prototype.isDone = function() {
     return false;
   };
 
-  Key.prototype.getDisplayObjects = function () {
+  Key.prototype.getDisplayObjects = function() {
     return [this];
   };
 
@@ -14874,11 +14874,11 @@ module.exports = function() {
   Maze.prototype = Object.create(DrawableObject.prototype);
   Maze.prototype.constructor = Maze;
 
-  Maze.prototype.isDone = function () {
+  Maze.prototype.isDone = function() {
     return false;
   };
 
-  Maze.prototype.getDisplayObjects = function () {
+  Maze.prototype.getDisplayObjects = function() {
     return [this];
   };
 
@@ -14926,7 +14926,7 @@ module.exports = function() {
 
 var Entity = require('./entity.js');
 
-module.exports = function () {
+module.exports = function() {
 
   var Player = function Player(gridLength, squareLength, game, gridTranslator) {
     Entity.call(this, gridLength, squareLength, game, "white", gridTranslator);
@@ -14994,7 +14994,7 @@ var Game = function Game() {
   this.gameEndListeners = [];
 };
 
-Game.prototype.start = function () {
+Game.prototype.start = function() {
   for (var i = 0; i < this.displays.length; i++) {
     this.displays[i].start();
   }
@@ -15002,7 +15002,7 @@ Game.prototype.start = function () {
   this.keyboardDriver.addKeyDownListener(this);
 };
 
-Game.prototype.stop = function () {
+Game.prototype.stop = function() {
   for (var i = 0; i < this.displays.length; i++) {
     this.displays[i].clear();
     this.displays[i].stop();
@@ -15011,11 +15011,11 @@ Game.prototype.stop = function () {
   this.keyboardDriver.removeKeyDownListener(this);
 };
 
-Game.prototype.gameLoop = function () {
+Game.prototype.gameLoop = function() {
   // method stuff
 };
 
-Game.prototype.keyDown = function () {
+Game.prototype.keyDown = function() {
   // method stuff
 };
 
@@ -15029,7 +15029,7 @@ Game.prototype.gameEnd = function (data) {
   }
 };
 
-Game.prototype.successfulMoveEvent = function () {
+Game.prototype.successfulMoveEvent = function() {
   // method stuff
 };
 
@@ -15079,7 +15079,7 @@ module.exports = function() {
   HallGame.prototype = Object.create(Game.prototype);
   HallGame.prototype.constructor = HallGame;
 
-  HallGame.prototype.start = function () {
+  HallGame.prototype.start = function() {
     Game.prototype.start.call(this);
     this.state = HallGameStates.BEGINNING;
     var margin = DisplayConstants.TEXT_MARGIN;
@@ -15089,7 +15089,7 @@ module.exports = function() {
     this.statusDisplay.addObject(this.blinkingCursor);
   };
 
-  HallGame.prototype.proceedToMiddle = function () {
+  HallGame.prototype.proceedToMiddle = function() {
     var self = this;
     this.state = HallGameStates.MIDDLE;
     this.blinkingCursor.setIsDone(true);
@@ -15097,12 +15097,12 @@ module.exports = function() {
     this.player.setPosition(0, 0);
     this.mazeDisplay.clear();
     this.mazeDisplay.addObject(this.player);
-    setTimeout(function () {
+    setTimeout(function() {
       self.proceedToEnd();
     }, 500);
   };
 
-  HallGame.prototype.proceedToEnd = function () {
+  HallGame.prototype.proceedToEnd = function() {
     var self = this;
     var margin = DisplayConstants.TEXT_MARGIN;
     var textSize = DisplayConstants.TEXT_SIZE;
@@ -15116,12 +15116,12 @@ module.exports = function() {
     this.maze.fadeIn();
 
     this.placeGoalObject();
-    setTimeout(function () {
+    setTimeout(function() {
       self.goalObject.fadeIn();
     }, 500);
   };
 
-  HallGame.prototype.placeGoalObject = function () {
+  HallGame.prototype.placeGoalObject = function() {
     var x = this.gridTranslator.xInPixels(this.hallLength) - this.squareLength / 2;
     var y = this.gridTranslator.yInPixels(1) - this.squareLength / 2;
     this.goalObject = new Circle(x, y, this.squareLength / 4, "green");
@@ -15143,7 +15143,7 @@ module.exports = function() {
     }
   };
 
-  HallGame.prototype.advanceState = function () {
+  HallGame.prototype.advanceState = function() {
     if (this.state === HallGameStates.BEGINNING) {
       this.proceedToMiddle();
       return;
@@ -15177,14 +15177,14 @@ module.exports = function() {
     }
   };
 
-  HallGame.prototype.winCondition = function () {
+  HallGame.prototype.winCondition = function() {
     return this.player.getX() === this.hallLength - 1;
   };
 
-  HallGame.prototype.win = function () {
+  HallGame.prototype.win = function() {
     var self = this;
     this.won = true;
-    this.mazeDisplay.flash("blue", 500, function () {
+    this.mazeDisplay.flash("blue", 500, function() {
       self.gameEnd({ won: true });
     });
   };
@@ -15216,7 +15216,7 @@ module.exports = function() {
   LightningMazeGame.prototype = Object.create(MazeGame.prototype);
   LightningMazeGame.prototype.constructor = LightningMazeGame;
 
-  LightningMazeGame.prototype.clearDisplays = function () {
+  LightningMazeGame.prototype.clearDisplays = function() {
     this.mazeDisplay.clear();
     this.mazeDisplay.addLightningObject(this.maze);
     this.mazeDisplay.addObject(this.player);
@@ -15242,7 +15242,7 @@ var Player = require('../gameObjects/player.js');
 var Circle = require('../drawableObjects/circle.js');
 var Firework = require('../effects/firework.js');
 
-module.exports = function () {
+module.exports = function() {
   var MazeGame = function MazeGame(keyboardDriver, mazeDisplay, neuralDisplay, gridLength, 
       squareLength) {
     var self = this;
@@ -15278,17 +15278,17 @@ module.exports = function () {
     return this.maze;
   }
 
-  MazeGame.prototype.start = function () {
+  MazeGame.prototype.start = function() {
     var self = this;
     Game.prototype.start.call(self);
     this.reset();
   };
 
-  MazeGame.prototype.drawLoop = function () {
+  MazeGame.prototype.drawLoop = function() {
     this.mazeDisplay.render();
   };
 
-  MazeGame.prototype.clearDisplays = function () {
+  MazeGame.prototype.clearDisplays = function() {
     this.mazeDisplay.clear();
     this.mazeDisplay.addObject(this.maze);
     this.mazeDisplay.addObject(this.player);
@@ -15296,7 +15296,7 @@ module.exports = function () {
     this.drawLoop();
   };
 
-  MazeGame.prototype.reset = function () {
+  MazeGame.prototype.reset = function() {
     this.won = false;
     this.map = MazeData.generate(this.gridLength, this.gridLength);
     this.drawMap = MazeData.translate(this.map);
@@ -15319,7 +15319,7 @@ module.exports = function () {
     return this.maze.validMove(x, y, direction);
   };
 
-  MazeGame.prototype.getPlayer = function () {
+  MazeGame.prototype.getPlayer = function() {
     return this.player;
   };
 
@@ -15369,19 +15369,19 @@ module.exports = function () {
     var success = this.performMove(move);
   };
 
-  MazeGame.prototype.winCondition = function () {
+  MazeGame.prototype.winCondition = function() {
     return this.player.x === this.gridLength - 1 && this.player.y === this.gridLength - 1;
   };
 
-  MazeGame.prototype.win = function () {
+  MazeGame.prototype.win = function() {
     var self = this;
     this.won = true;
-    this.mazeDisplay.flash("blue", 500, function () {
+    this.mazeDisplay.flash("blue", 500, function() {
       self.gameEnd({ won: true });
     });    
   };
 
-  MazeGame.prototype.successfulMoveEvent = function () {
+  MazeGame.prototype.successfulMoveEvent = function() {
     if (this.neuralDisplay === null) {
       return;
     }
@@ -15419,7 +15419,7 @@ var Circle = require('../drawableObjects/circle.js');
 var Gamespace = require('../gamespace.js');
 var Firework = require('../effects/firework.js');
 
-module.exports = function () {
+module.exports = function() {
   var MultiplayerOnlineMazeGame = function MultiplayerOnlineMazeGame(keyboardDriver, mazeDisplay, 
       neuralDisplay, gridLength, squareLength, networkDriver, playerNumber) {
     var self = this;
@@ -15454,11 +15454,11 @@ module.exports = function () {
     this.reset(maze);
   };
 
-  MultiplayerOnlineMazeGame.prototype.drawLoop = function () {
+  MultiplayerOnlineMazeGame.prototype.drawLoop = function() {
     this.mazeDisplay.render();
   };
 
-  MultiplayerOnlineMazeGame.prototype.clearDisplays = function () {
+  MultiplayerOnlineMazeGame.prototype.clearDisplays = function() {
     this.mazeDisplay.clear();
     this.mazeDisplay.addObject(this.maze);
     for (var x = 0; x < this.players.length; x++) {
@@ -15511,7 +15511,7 @@ module.exports = function () {
     return this.maze.validMove(x, y, direction);
   };
 
-  MultiplayerOnlineMazeGame.prototype.getPlayer = function () {
+  MultiplayerOnlineMazeGame.prototype.getPlayer = function() {
     return this.player;
   };
 
@@ -15519,20 +15519,20 @@ module.exports = function () {
     return this.maze;
   }
 
-  MultiplayerOnlineMazeGame.prototype.winCondition = function () {
+  MultiplayerOnlineMazeGame.prototype.winCondition = function() {
     return this.player.x === this.gridLength - 1 && this.player.y === this.gridLength - 1;
   };
 
-  MultiplayerOnlineMazeGame.prototype.win = function () {
+  MultiplayerOnlineMazeGame.prototype.win = function() {
     var self = this;
     this.won = true;
     this.networkDriver.sendWin(this.playerNumber);
-    this.mazeDisplay.flash("blue", 500, function () {
+    this.mazeDisplay.flash("blue", 500, function() {
       self.gameEnd({ won: true });
     });
   };
 
-  MultiplayerOnlineMazeGame.prototype.successfulMoveEvent = function () {
+  MultiplayerOnlineMazeGame.prototype.successfulMoveEvent = function() {
     this.networkDriver.send({
       x: this.player.x,
       y: this.player.y,
@@ -15579,7 +15579,7 @@ var Key = require('../../gameObjects/key.js');
 var Circle = require('../../drawableObjects/circle.js');
 
 
-module.exports = function () {
+module.exports = function() {
   var KeyMazeGame = function KeyMazeGame(keyboardDriver, display, gridLength, 
       squareLength) {
     var self = this;
@@ -15588,7 +15588,7 @@ module.exports = function () {
 
   KeyMazeGame.prototype = Object.create(SingleDisplayMazeGame.prototype);
 
-  KeyMazeGame.prototype.clearDisplays = function () {
+  KeyMazeGame.prototype.clearDisplays = function() {
     this.display.clear();
     this.display.addObject(this.maze);
     this.display.addObject(this.player);
@@ -15597,7 +15597,7 @@ module.exports = function () {
     this.drawLoop();
   };
 
-  KeyMazeGame.prototype.reset = function () {
+  KeyMazeGame.prototype.reset = function() {
     this.won = false;
     this.map = MazeData.generate(this.gridLength, this.gridLength);
     this.drawMap = MazeData.translate(this.map);
@@ -15639,7 +15639,7 @@ module.exports = function () {
     this.continueMovement(self, move, success);
   };
 
-  KeyMazeGame.prototype.winCondition = function () {
+  KeyMazeGame.prototype.winCondition = function() {
     return this.player.has(this.key) && 
       (this.player.x === this.gridLength - 1) && 
       (this.player.y === this.gridLength - 1);
@@ -15669,7 +15669,7 @@ var Circle = require('../../drawableObjects/circle.js');
 var Spark = require('../../effects/spark.js');
 
 
-module.exports = function () {
+module.exports = function() {
   var SingleDisplayMazeGame = function SingleDisplayMazeGame(keyboardDriver, display, gridLength, 
       squareLength) {
     var self = this;
@@ -15732,17 +15732,17 @@ module.exports = function () {
     return this.maze;
   }
 
-  SingleDisplayMazeGame.prototype.start = function () {
+  SingleDisplayMazeGame.prototype.start = function() {
     var self = this;
     Game.prototype.start.call(self);
     this.reset();
   };
 
-  SingleDisplayMazeGame.prototype.drawLoop = function () {
+  SingleDisplayMazeGame.prototype.drawLoop = function() {
     this.display.render();
   };
 
-  SingleDisplayMazeGame.prototype.clearDisplays = function () {
+  SingleDisplayMazeGame.prototype.clearDisplays = function() {
     this.display.clear();
     this.display.addObject(this.maze);
     this.display.addObject(this.player);
@@ -15750,9 +15750,8 @@ module.exports = function () {
     this.drawLoop();
   };
 
-  SingleDisplayMazeGame.prototype.reset = function () {
+  SingleDisplayMazeGame.prototype.reset = function() {
     this.won = false;
-    console.log("reset grid length: " + this.gridLength);
     this.map = MazeData.generate(this.gridLength, this.gridLength);
     this.drawMap = MazeData.translate(this.map);
     this.maze = new Maze(this.drawMap, this.squareLength);
@@ -15774,7 +15773,7 @@ module.exports = function () {
     return this.maze.validMove(x, y, direction);
   };
 
-  SingleDisplayMazeGame.prototype.getPlayer = function () {
+  SingleDisplayMazeGame.prototype.getPlayer = function() {
     return this.player;
   };
 
@@ -15840,21 +15839,20 @@ module.exports = function () {
     var success = this.performMove(move);
   };
 
-  SingleDisplayMazeGame.prototype.winCondition = function () {
+  SingleDisplayMazeGame.prototype.winCondition = function() {
     return this.player.x === this.gridLength - 1 && this.player.y === this.gridLength - 1;
   };
 
-  SingleDisplayMazeGame.prototype.win = function () {
-    console.log("SingleDisplayMazeGame win");
+  SingleDisplayMazeGame.prototype.win = function() {
     var self = this;
     this.won = true;
     this.networkDriver.sendWin(this.playerNumber);
-    this.display.flash("blue", 500, function () {
+    this.display.flash("blue", 500, function() {
       self.gameEnd({ won: true });
     });    
   };
 
-  SingleDisplayMazeGame.prototype.successfulMoveEvent = function () {
+  SingleDisplayMazeGame.prototype.successfulMoveEvent = function() {
     var self = this;
     if (this.display === null) {
       return;
@@ -15908,7 +15906,7 @@ module.exports = function() {
   SplitMazeGame.prototype = Object.create(MazeGame.prototype);
   SplitMazeGame.prototype.constructor = SplitMazeGame;
 
-  SplitMazeGame.prototype.clearDisplays = function () {
+  SplitMazeGame.prototype.clearDisplays = function() {
     this.horizontalDisplay = new HorizontalDisplay(this.drawMap, this.squareLength);
     this.verticalDisplay = new VerticalDisplay(this.drawMap, this.squareLength);
 
@@ -15923,19 +15921,19 @@ module.exports = function() {
     this.drawLoop();
   };
 
-  SplitMazeGame.prototype.drawLoop = function () {
+  SplitMazeGame.prototype.drawLoop = function() {
     this.mazeXDisplay.render();
     this.mazeYDisplay.render();
   };
 
-  SplitMazeGame.prototype.win = function () {
+  SplitMazeGame.prototype.win = function() {
     var self = this;
     var secondFlashDuration = 500;
     var secondFlashDelay = 75;
     var firstFlashDuration = secondFlashDelay + secondFlashDuration;
-    this.mazeXDisplay.flash("blue", firstFlashDuration, function () {});
-    setTimeout(function () {
-      self.mazeYDisplay.flash("blue", secondFlashDuration, function () {
+    this.mazeXDisplay.flash("blue", firstFlashDuration, function() {});
+    setTimeout(function() {
+      self.mazeYDisplay.flash("blue", secondFlashDuration, function() {
         self.gameEnd({ won: true });
       });
     }, secondFlashDelay);
@@ -15959,7 +15957,7 @@ var Circle = require('../drawableObjects/circle.js');
 var Gamespace = require('../gamespace.js');
 var Firework = require('../effects/firework.js');
 
-module.exports = function () {
+module.exports = function() {
   var TwoPlayerMazeGame = function TwoPlayerMazeGame(keyboardDriver, mazeDisplay, neuralDisplay, 
       gridLength, squareLength) {
     var self = this;
@@ -15981,11 +15979,11 @@ module.exports = function () {
     this.reset(maze);
   };
 
-  TwoPlayerMazeGame.prototype.drawLoop = function () {
+  TwoPlayerMazeGame.prototype.drawLoop = function() {
     this.mazeDisplay.render();
   };
 
-  TwoPlayerMazeGame.prototype.clearDisplays = function () {
+  TwoPlayerMazeGame.prototype.clearDisplays = function() {
     this.mazeDisplay.clear();
     this.mazeDisplay.addObject(this.maze);
     this.mazeDisplay.addObject(this.player);
@@ -16025,7 +16023,7 @@ module.exports = function () {
     return this.maze.validMove(x, y, direction);
   };
 
-  TwoPlayerMazeGame.prototype.getPlayer = function () {
+  TwoPlayerMazeGame.prototype.getPlayer = function() {
     return this.player;
   };
 
@@ -16057,19 +16055,19 @@ module.exports = function () {
     return function() {};
   }
 
-  TwoPlayerMazeGame.prototype.winCondition = function () {
+  TwoPlayerMazeGame.prototype.winCondition = function() {
     return this.player.x === this.gridLength - 1 && this.player.y === this.gridLength - 1 || this.player2.x === this.gridLength - 1 && this.player2.y === this.gridLength - 1;
   };
 
-  TwoPlayerMazeGame.prototype.win = function () {
+  TwoPlayerMazeGame.prototype.win = function() {
     var self = this;
     this.won = true;
-    this.mazeDisplay.flash("blue", 500, function () {
+    this.mazeDisplay.flash("blue", 500, function() {
       self.gameEnd({ won: true });
     });
   };
 
-  TwoPlayerMazeGame.prototype.successfulMoveEvent = function () {
+  TwoPlayerMazeGame.prototype.successfulMoveEvent = function() {
     if (this.neuralDisplay === null) {
       return;
     }
@@ -16417,7 +16415,7 @@ module.exports = function() {
   };
 
 
-  HollowCart.prototype.startNeuralActivity = function () {
+  HollowCart.prototype.startNeuralActivity = function() {
     var canv, display1, display2, display3, display4, mazeGame, 
       canvasLength, canvas1, canvas2, canvas3, canvas4, canvas5, 
       canvas6, keyboardDriver, soundDriver, gameMaster;
@@ -16439,15 +16437,15 @@ module.exports = function() {
     this.gameMaster = new NeuralActivityGameMaster(canvas1, canvas2, canvas3, canvas4, canvas5, canvas6, keyboardDriver, soundDriver);
   }
 
-  HollowCart.prototype.next = function () {
+  HollowCart.prototype.next = function() {
     this.gameMaster.next();
   }
 
-  HollowCart.prototype.previous = function () {
+  HollowCart.prototype.previous = function() {
     this.gameMaster.previous();
   }
 
-  HollowCart.prototype.getCurrentGame = function () {
+  HollowCart.prototype.getCurrentGame = function() {
     return this.gameMaster.getCurrentGame();
   }
 
