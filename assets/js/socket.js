@@ -15,7 +15,7 @@ let join_game = function() {
   join_game_channel(game_name, resp => { 
     console.log("Joined game successfully", resp) 
     display_game(resp);
-    hollow_cart.startMultiplayer(resp.maze, NetworkDriver, resp.player_number);
+    hollow_cart.startTrustContent(resp.maze, NetworkDriver, resp.player_number);
     NetworkDriver.receive(resp);
   });
 };
@@ -50,7 +50,7 @@ let start_game = function() {
       display_game(resp);
       join_game_channel(resp.game_name, arg => { 
         console.log("Started game successfully", arg) 
-        var maze = hollow_cart.startMultiplayer(maze, NetworkDriver, 0);
+        var maze = hollow_cart.startTrustContent(maze, NetworkDriver, 0);
         NetworkDriver.setGame(hollow_cart.getCurrentGame());
         NetworkDriver.sendMaze(maze);
         NetworkDriver.receive(arg);

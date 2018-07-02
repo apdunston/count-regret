@@ -9,19 +9,9 @@
     </div>
   </div>
   <br>
-  <div class="play-area hidden" style="display: none">
-    <div style="float: left">
-      <div>
-        <canvas id="canvas1"></canvas>
-      </div>
-      <div style="text-align: center">Maze</div>
+  <div>
+    <div class="play-area hidden" style="display: none">
+      <canvas id="canvas1"></canvas>
     </div>
-    <div style="float: left; width 20px">&nbsp;</div>
-    <div style="float: left">
-      <div>
-        <canvas id="canvas2"></canvas>
-      </div>
-      <div style="text-align: center">Effects</div>
-    </div>
-  <div style="clear: both;"></div>
+  </div>
 </div>
