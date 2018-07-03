@@ -15024,6 +15024,7 @@ var Game = function Game() {
   this.displays = [];
   this.keyboardDriver = null;
   this.gameEndListeners = [];
+  this.running = false;
 };
 
 Game.prototype.start = function () {
@@ -15032,15 +15033,21 @@ Game.prototype.start = function () {
   }
 
   this.keyboardDriver.addKeyDownListener(this);
+  this.running = true;
 };
 
 Game.prototype.stop = function () {
+  if (!this.running) {
+    return;
+  }
+
   for (var i = 0; i < this.displays.length; i++) {
     this.displays[i].clear();
     this.displays[i].stop();
   }
 
   this.keyboardDriver.removeKeyDownListener(this);
+  this.running = false;
 };
 
 Game.prototype.gameLoop = function () {
@@ -15834,6 +15841,11 @@ module.exports = function () {
 
   SingleDisplayMazeGame.prototype.getMoveForEvent = function (evt) {
     var self = this;
+
+    if (!self.running) {
+      return function () {};
+    }
+
     switch (evt.keyCode) {
       case Gamespace.LEFT_CODE:
         return function () {
@@ -15895,7 +15907,7 @@ module.exports = function () {
 
   SingleDisplayMazeGame.prototype.keyDown = function (evt) {
     var move = this.getMoveForEvent(evt);
-    var success = this.performMove(move);
+    this.performMove(move);
   };
 
   SingleDisplayMazeGame.prototype.winCondition = function () {
@@ -15904,8 +15916,15 @@ module.exports = function () {
 
   SingleDisplayMazeGame.prototype.win = function () {
     var self = this;
+
+    if (self.timeout != null) {
+      clearTimeout(self.timeout);
+    }
+
+    this.stop();
     this.won = true;
     this.networkDriver.sendWin(this.playerNumber);
+
     this.display.flash("blue", 500, function () {
       self.gameEnd({ won: true });
     });

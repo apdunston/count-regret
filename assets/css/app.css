@@ -2,6 +2,9 @@
 
 html { 
     height: 100%;
+    overflow: hidden;
+    position: fixed;
+    overscroll-behavior: none;
 }
 
 body {
@@ -9,5 +12,7 @@ body {
     background-color: #000000;
     color: white;
     height: 100%;
+    position: fixed;
+    overscroll-behavior: none;
     overflow: hidden;
 }
