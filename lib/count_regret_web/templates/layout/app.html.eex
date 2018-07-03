@@ -10,8 +10,7 @@
     <title>Count Regret</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
-
-  <body>
+  <body style="font-family: 'Courier New', Courier, monospace; background-color: #000000; color: white; height: 100%; overflow: hidden;">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 

@@ -1,5 +1,9 @@
 /* This file is for your main application css. */
 
+html { 
+    height: 100%;
+}
+
 body {
     font-family: 'Courier New', Courier, monospace;
     background-color: #000000;
