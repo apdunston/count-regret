@@ -1,1 +1,0 @@
-{"version":3,"sources":["css/app.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"../priv/static/css/app.css","sourcesContent":["/* This file is for your main application css. */\n\nbody {\n    font-family: 'Courier New', Courier, monospace;\n    background-color: #000000;\n    color: white;\n    height: 100%;\n    overflow: hidden;\n}"]}
