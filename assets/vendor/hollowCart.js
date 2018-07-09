@@ -13096,6 +13096,7 @@ return jQuery;
  * Interface Display
  */
 
+var Rectangle = require('./drawableObjects/rectangle.js');
 var Square = require('./drawableObjects/square.js');
 
 module.exports = function () {
@@ -13106,7 +13107,8 @@ module.exports = function () {
     this.objects = [];
     this.backgroundOnly = false;
     this.width = renderer.getWidth();
-    this.backgroundObject = new Square(0, 0, this.width, this.color);
+    this.height = renderer.getHeight();
+    this.backgroundObject = new Rectangle(0, 0, this.width, this.height, this.color);
     this.addObject(this.backgroundObject);
     this.drawInterval = null;
   };
@@ -13115,7 +13117,7 @@ module.exports = function () {
 
   Display.prototype.setColor = function (value) {
     this.color = value;
-    this.objects[0] = new Square(0, 0, this.width, this.color);
+    this.objects[0] = new Rectangle(0, 0, this.width, this.height, this.color);
     this.render();
   };
 
@@ -13202,7 +13204,7 @@ module.exports = function () {
   return Display;
 }();
 
-},{"./drawableObjects/square.js":11}],5:[function(require,module,exports){
+},{"./drawableObjects/rectangle.js":10,"./drawableObjects/square.js":11}],5:[function(require,module,exports){
 "use strict";
 
 var Square = require("./square.js");
@@ -13234,7 +13236,7 @@ module.exports = function () {
   return BlinkingCursor;
 }();
 
-},{"../enums/alpha.js":26,"../enums/displayConstants.js":27,"./square.js":11}],6:[function(require,module,exports){
+},{"../enums/alpha.js":26,"../enums/displayConstants.js":28,"./square.js":11}],6:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
@@ -13289,6 +13291,7 @@ module.exports = function () {
 
 var DrawableObjectState = require('./drawableObjectState.js');
 var Alpha = require('../enums/alpha.js');
+var Colors = require('../enums/colors.js');
 
 module.exports = function () {
   var DrawableObject = function DrawableObject() {
@@ -13296,6 +13299,7 @@ module.exports = function () {
     this.isDoneValue = false;
     this.state = DrawableObjectState.STATIC;
     this.fadeDelta = 0.02;
+    this.color = Colors.WHITE;
     this.callback = function () {};
   };
 
@@ -13359,7 +13363,7 @@ module.exports = function () {
   return DrawableObject;
 }();
 
-},{"../enums/alpha.js":26,"./drawableObjectState.js":8}],8:[function(require,module,exports){
+},{"../enums/alpha.js":26,"../enums/colors.js":27,"./drawableObjectState.js":8}],8:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -13528,13 +13532,17 @@ var DisplayConstants = require('../enums/displayConstants.js');
 
 module.exports = function () {
   // Constructor calls super
-  var Text = function Text(x, y, text, color, alpha) {
+  var Text = function Text(x, y, text, color, alpha, size) {
     DrawableObject.call(this);
     this.x = x;
     this.y = y;
     this.text = text;
     this.color = color;
     this.alpha = alpha;
+    this.size = size;
+    if (!this.size) {
+      DisplayConstants.TEXT_SIZE;
+    }
   };
 
   // Explicit Inheritance
@@ -13544,17 +13552,35 @@ module.exports = function () {
   // Instance Method
   Text.prototype.draw = function (renderer) {
     DrawableObject.prototype.draw.call(this);
-    renderer.drawText(this.x, this.y, this.text, this.color, DisplayConstants.TEXT_SIZE, Font.COURIER_NEW, this.alpha);
+    renderer.drawText(this.x, this.y, this.text, this.color, this.size, Font.COURIER_NEW, this.alpha);
   };
+
+  Text.prototype.setText = function (value) {
+    this.text = value;
+  };
+
+  Text.prototype.setX = function (value) {
+    this.x = value;
+  };
+
+  Text.prototype.setY = function (value) {
+    this.y = value;
+  };
+
+  Text.prototype.setSize = function (value) {
+    this.size = value;
+  };
+
   return Text;
 }();
 
-},{"../enums/displayConstants.js":27,"./drawableObject.js":7,"./font.js":9}],13:[function(require,module,exports){
+},{"../enums/displayConstants.js":28,"./drawableObject.js":7,"./font.js":9}],13:[function(require,module,exports){
 "use strict";
 
 var DrawableObject = require('./drawableObject.js');
 var DisplayConstants = require('../enums/displayConstants.js');
 var Font = require('./font.js');
+var Alpha = require("../enums/alpha");
 
 module.exports = function () {
   var TypedTextState = {
@@ -13575,6 +13601,7 @@ module.exports = function () {
     this.typingFrame = 0;
     this.framesPerLetter = 5;
     this.size = size;
+    this.alpha = Alpha.OPAQUE;
     if (!this.size) {
       DisplayConstants.TEXT_SIZE;
     }
@@ -13584,7 +13611,7 @@ module.exports = function () {
   TypedText.prototype = Object.create(DrawableObject.prototype);
   TypedText.prototype.constructor = TypedText;
 
-  TypedText.prototype.type = function (fn) {
+  TypedText.prototype.start = function (fn) {
     this.typingState = TypedTextState.TYPING;
     this.fn = fn;
   };
@@ -13630,7 +13657,7 @@ module.exports = function () {
   return TypedText;
 }();
 
-},{"../enums/displayConstants.js":27,"./drawableObject.js":7,"./font.js":9}],14:[function(require,module,exports){
+},{"../enums/alpha":26,"../enums/displayConstants.js":28,"./drawableObject.js":7,"./font.js":9}],14:[function(require,module,exports){
 "use strict";
 
 var Font = require('../drawableObjects/font.js');
@@ -13655,6 +13682,10 @@ module.exports = function () {
 
   DisplayDriver.prototype.getWidth = function () {
     return this.canvas.width;
+  };
+
+  DisplayDriver.prototype.getHeight = function () {
+    return this.canvas.height;
   };
 
   DisplayDriver.prototype.drawRectangle = function (x, y, xLength, yWidth, color, alpha) {
@@ -13893,7 +13924,7 @@ module.exports = function () {
   return SubDisplay;
 }();
 
-},{"../../gridTranslator.js":49}],19:[function(require,module,exports){
+},{"../../gridTranslator.js":55}],19:[function(require,module,exports){
 "use strict";
 
 var SubDisplay = require('./subDisplay.js');
@@ -14052,7 +14083,7 @@ module.exports = function () {
  */
 
 var Sparkle = require('./sparkle.js');
-var Gamespace = require('../gamespace.js');
+var Colors = require('../enums/colors.js');
 
 module.exports = function () {
 
@@ -14064,7 +14095,7 @@ module.exports = function () {
     this.offset = offset;
     this.sparkles = [];
     this.isDoneValue = false;
-    colorIndex = Math.floor(Math.random() * Gamespace.rainbow.length);
+    colorIndex = Math.floor(Math.random() * Colors.rainbow.length);
     switch (offset) {
       case 1:
         pixelsSmaller = 8;break;
@@ -14124,7 +14155,7 @@ module.exports = function () {
   return Ring;
 }();
 
-},{"../gamespace.js":48,"./sparkle.js":25}],24:[function(require,module,exports){
+},{"../enums/colors.js":27,"./sparkle.js":25}],24:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14132,7 +14163,6 @@ module.exports = function () {
  */
 
 var Square = require('../drawableObjects/square.js');
-var Gamespace = require('../gamespace.js');
 
 module.exports = function () {
   var Spark = function Spark(display, x, y, squareLength, duration, colorIndex) {
@@ -14187,7 +14217,7 @@ module.exports = function () {
   return Spark;
 }();
 
-},{"../drawableObjects/square.js":11,"../gamespace.js":48}],25:[function(require,module,exports){
+},{"../drawableObjects/square.js":11}],25:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14195,7 +14225,7 @@ module.exports = function () {
  */
 
 var Square = require('../drawableObjects/square.js');
-var Gamespace = require('../gamespace.js');
+var Colors = require('../enums/colors.js');
 
 module.exports = function () {
   var Sparkle = function Sparkle(x, y, squareLength, duration, colorIndex) {
@@ -14203,7 +14233,7 @@ module.exports = function () {
     this.y = y;
     this.squareLength = squareLength;
 
-    this.drawable = new Square(this.x, this.y, this.squareLength, Gamespace.rainbow[0]);
+    this.drawable = new Square(this.x, this.y, this.squareLength, Colors.rainbow[0]);
     this.maxFrameCount = duration !== undefined ? duration : 15;
     this.frameCount = 0;
     this.framesPerColorChange = 5;
@@ -14211,8 +14241,8 @@ module.exports = function () {
   };
 
   Sparkle.prototype.colorForFramecount = function (count) {
-    // return Gamespace.rainbow[0];
-    return Gamespace.rainbow[Math.floor(count / this.framesPerColorChange) + this.startColor % Gamespace.rainbow.length];
+    // return Colors.rainbow[0];
+    return Colors.rainbow[Math.floor(count / this.framesPerColorChange) + this.startColor % Colors.rainbow.length];
   };
 
   Sparkle.prototype.isHalfDone = function () {
@@ -14243,7 +14273,7 @@ module.exports = function () {
   return Sparkle;
 }();
 
-},{"../drawableObjects/square.js":11,"../gamespace.js":48}],26:[function(require,module,exports){
+},{"../drawableObjects/square.js":11,"../enums/colors.js":27}],26:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14269,12 +14299,41 @@ module.exports = {
 },{}],27:[function(require,module,exports){
 "use strict";
 
+/**
+ * Bare Functions
+ */
+
+module.exports = function () {
+  var Colors = {
+    VIOLET: "#9400D3",
+    BLUE: "#0000FF",
+    GREEN: "#00FF00",
+    YELLOW: "#FFFF00",
+    ORANGE: "#FF7F00",
+    RED: "#FF0000",
+    WHITE: "#FFFFFF",
+    BLACK: "#000000"
+  };
+
+  Colors.rainbow = [Colors.RED, Colors.ORANGE, Colors.YELLOW, Colors.GREEN, Colors.BLUE, Colors.VIOLET];
+
+  Colors.randomColor = function () {
+    var index = Math.floor(Math.random() * 6);
+    return this.rainbow[index];
+  };
+
+  return Colors;
+}();
+
+},{}],28:[function(require,module,exports){
+"use strict";
+
 var DisplayConstants = {
   TEXT_SIZE: 16,
   TEXT_MARGIN: 20
 };
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -14362,15 +14421,16 @@ module.exports = function () {
   return GameMaster;
 }();
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
-var GameMaster = require("./gameMaster.js");
-var Display = require('../display.js');
-var MultiplayerOnlineMazeGame = require('../games/multiplayerOnlineMazeGame.js');
-var DisplayDriver = require('../drivers/displayDriver.js');
-var NullNetworkDriver = require('../drivers/nullNetworkDriver.js');
-var MazeGame = require('../games/mazeGame.js');
+var GameMaster = require("./gameMaster");
+var Display = require('../display');
+var MultiplayerOnlineMazeGame = require('../games/multiplayerOnlineMazeGame');
+var DisplayDriver = require('../drivers/displayDriver');
+var NullNetworkDriver = require('../drivers/nullNetworkDriver');
+var MazeGame = require('../games/mazeGame');
+var Score = require("../gameObjects/score");
 
 module.exports = function () {
   var MazeGameMaster = function MazeGameMaster(canvases, keyboardDriver) {
@@ -14389,6 +14449,7 @@ module.exports = function () {
     this.display1.setColor("black");
     this.display2 = new Display(new DisplayDriver(canvas2), displaySpeed);
     this.display2.setColor("black");
+    this.score = new Score(0, this.gridLength, this.squareLength);
   };
 
   MazeGameMaster.prototype = Object.create(GameMaster.prototype);
@@ -14401,6 +14462,9 @@ module.exports = function () {
 
   MazeGameMaster.prototype.setPlayerNumber = function (playerNumber) {
     this.playerNumber = playerNumber;
+    for (var i = 0; i < this.games.length; i++) {
+      this.games[i].setPlayerNumber(playerNumber);
+    }
     return this;
   };
 
@@ -14422,6 +14486,7 @@ module.exports = function () {
     for (var x = 0; x < this.games.length; x++) {
       this.games[x].setGridLength(gridLength);
     }
+    this.score.setGridLength(gridLength);
     return this;
   };
 
@@ -14430,6 +14495,7 @@ module.exports = function () {
     for (var x = 0; x < this.games.length; x++) {
       this.games[x].setSquareLength(squareLength);
     }
+    this.score.setSquareLength(squareLength);
     return this;
   };
 
@@ -14471,7 +14537,7 @@ module.exports = function () {
   return MazeGameMaster;
 }();
 
-},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/nullNetworkDriver.js":21,"../games/mazeGame.js":42,"../games/multiplayerOnlineMazeGame.js":43,"./gameMaster.js":28}],30:[function(require,module,exports){
+},{"../display":4,"../drivers/displayDriver":14,"../drivers/nullNetworkDriver":21,"../gameObjects/score":42,"../games/mazeGame":46,"../games/multiplayerOnlineMazeGame":47,"./gameMaster":29}],31:[function(require,module,exports){
 "use strict";
 
 var GameMaster = require("./gameMaster.js");
@@ -14525,7 +14591,7 @@ module.exports = function () {
   return NeuralActivityGameMaster;
 }();
 
-},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/displays/lightningDisplay.js":16,"../drivers/displays/reverseLightningDisplay.js":17,"../games/hallGame.js":40,"../games/lightningMazeGame.js":41,"../games/mazeGame.js":42,"../games/splitMazeGame.js":46,"./gameMaster.js":28}],31:[function(require,module,exports){
+},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/displays/lightningDisplay.js":16,"../drivers/displays/reverseLightningDisplay.js":17,"../games/hallGame.js":44,"../games/lightningMazeGame.js":45,"../games/mazeGame.js":46,"../games/splitMazeGame.js":52,"./gameMaster.js":29}],32:[function(require,module,exports){
 "use strict";
 
 var GameMaster = require("./gameMaster.js");
@@ -14564,16 +14630,21 @@ module.exports = function () {
   return SingleDisplayGameMaster;
 }();
 
-},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/nullNetworkDriver.js":21,"../games/multiplayerOnlineMazeGame.js":43,"../games/singleDisplay/mazeGame.js":45,"./gameMaster.js":28,"./mazeGameMaster.js":29}],32:[function(require,module,exports){
+},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/nullNetworkDriver.js":21,"../games/multiplayerOnlineMazeGame.js":47,"../games/singleDisplay/mazeGame.js":51,"./gameMaster.js":29,"./mazeGameMaster.js":30}],33:[function(require,module,exports){
 "use strict";
 
-var GameMaster = require("./gameMaster.js");
-var MazeGameMaster = require('./mazeGameMaster.js');
-var Display = require('../display.js');
-var DisplayDriver = require('../drivers/displayDriver.js');
-var NullNetworkDriver = require('../drivers/nullNetworkDriver.js');
-var SimpleMazeScene = require('../scenes/simpleMazeScene.js');
-var KeyMazeScene = require('../scenes/keyMazeScene.js');
+var GameMaster = require("./gameMaster");
+var MazeGameMaster = require('./mazeGameMaster');
+var Display = require('../display');
+var DisplayDriver = require('../drivers/displayDriver');
+var NullNetworkDriver = require('../drivers/nullNetworkDriver');
+var SimpleMazeScene = require('../scenes/simpleMazeScene');
+var KeyMazeScene = require('../scenes/keyMazeScene');
+var ReverseLightningDisplay = require('../drivers/displays/reverseLightningDisplay');
+var LightningDisplay = require('../drivers/displays/lightningDisplay');
+var SingleDisplayLightningMazeGame = require('../games/singleDisplay/lightningMazeGame');
+var Score = require("../gameObjects/score");
+var GameOver = require("../gameObjects/gameOver");
 
 module.exports = function () {
   var TrustContentGameMaster = function TrustContentGameMaster(canvas, keyboardDriver) {
@@ -14585,22 +14656,57 @@ module.exports = function () {
     this.soundDriver = null;
     this.keyboardDriver = keyboardDriver;
     this.setNetworkDriver(NullNetworkDriver);
+    this.timeRemaining = 60;
 
     var displaySpeed = 100;
     this.display = new Display(new DisplayDriver(canvas), displaySpeed);
     this.display.setColor("black");
+    this.reverseLightningDisplay = new ReverseLightningDisplay(new DisplayDriver(canvas1), displaySpeed);
+    this.lightningDisplay = new LightningDisplay(new DisplayDriver(canvas1), displaySpeed);
+
     this.displays = [this.display];
-    this.addGame(new SimpleMazeScene(this.keyboardDriver, this.display, this.gridLength, this.squareLength));
-    this.addGame(new KeyMazeScene(this.keyboardDriver, this.display, this.gridLength, this.squareLength));
+    this.score = new Score(0, this.gridLength, this.squareLength);
+
+    this.addGame(new SimpleMazeScene(this.keyboardDriver, this.display, this.gridLength, this.squareLength, this.score));
+    this.addGame(new KeyMazeScene(this.keyboardDriver, this.display, this.gridLength, this.squareLength, this.score));
+    this.addGame(new SingleDisplayLightningMazeGame(this.keyboardDriver, this.reverseLightningDisplay, this.gridLength, this.squareLength, this.score));
+    this.addGame(new SingleDisplayLightningMazeGame(this.keyboardDriver, this.lightningDisplay, this.gridLength, this.squareLength, this.score));
+    // this.addGame(new ChaseMazeGame(keyboardDriver, display1, display3, gridLength, squareLength, this.score));
   };
 
   TrustContentGameMaster.prototype = Object.create(MazeGameMaster.prototype);
   TrustContentGameMaster.prototype.constructor = TrustContentGameMaster;
 
+  TrustContentGameMaster.prototype.gameEnd = function (data) {
+    if (data.won !== true) {
+      this.display.addObject(new GameOver(this.gridLength, this.squareLength));
+      return;
+    }
+
+    this.score.add(100);
+
+    if (this.onLastGame()) {
+      this.score.add(200);
+      // Make it harder
+      this.timeRemaining = Math.ceil(this.timeRemaining * 0.6);
+    }
+
+    this.next();
+  };
+
+  TrustContentGameMaster.prototype.next = function () {
+    var maze = this.getCurrentGame().getMaze();
+    MazeGameMaster.prototype.next.call(this);
+    if (!this.onFirstGame()) {
+      this.getCurrentGame().setMaze(maze);
+    }
+    this.getCurrentGame().setTimeRemaining(this.timeRemaining);
+  };
+
   return TrustContentGameMaster;
 }();
 
-},{"../display.js":4,"../drivers/displayDriver.js":14,"../drivers/nullNetworkDriver.js":21,"../scenes/keyMazeScene.js":52,"../scenes/simpleMazeScene.js":54,"./gameMaster.js":28,"./mazeGameMaster.js":29}],33:[function(require,module,exports){
+},{"../display":4,"../drivers/displayDriver":14,"../drivers/displays/lightningDisplay":16,"../drivers/displays/reverseLightningDisplay":17,"../drivers/nullNetworkDriver":21,"../gameObjects/gameOver":37,"../gameObjects/score":42,"../games/singleDisplay/lightningMazeGame":50,"../scenes/keyMazeScene":58,"../scenes/simpleMazeScene":60,"./gameMaster":29,"./mazeGameMaster":30}],34:[function(require,module,exports){
 "use strict";
 
 var GameMaster = require("./gameMaster.js");
@@ -14632,7 +14738,117 @@ module.exports = function () {
   return TwoPlayerGameMaster;
 }();
 
-},{"../display.js":4,"../drivers/displayDriver.js":14,"../games/twoPlayerMazeGame.js":47,"./gameMaster.js":28}],34:[function(require,module,exports){
+},{"../display.js":4,"../drivers/displayDriver.js":14,"../games/twoPlayerMazeGame.js":53,"./gameMaster.js":29}],35:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Colors = require('../enums/colors.js');
+var Alpha = require('../enums/alpha.js');
+var Text = require('../drawableObjects/text.js');
+
+module.exports = function () {
+  var CountdownTimer = function () {
+    function CountdownTimer(timeRemaining, gridLength, squareLength, callback) {
+      _classCallCheck(this, CountdownTimer);
+
+      this.timeRemaining = timeRemaining;
+      this.gridLength = gridLength;
+      this.squareLength = squareLength;
+      this.callback = callback;
+
+      this.timerText = new Text(0, 0, "0", Colors.WHITE, Alpha.OPAQUE, 1);
+      this.resetTimerboard();
+    }
+
+    _createClass(CountdownTimer, [{
+      key: 'tick',
+      value: function tick() {
+        var self = this;
+        self.timeRemaining -= 1;
+        self.resetTimerboard();
+
+        if (self.timeRemaining === 0) {
+          this.stop();
+          this.callback();
+          return;
+        }
+
+        if (self.timeout) {
+          clearTimeout(self.timeout);
+        }
+
+        self.timeout = setTimeout(function () {
+          self.tick();
+        }, 1000);
+      }
+    }, {
+      key: 'start',
+      value: function start() {
+        var self = this;
+        self.timeout = setTimeout(function () {
+          self.tick();
+        }, 1000);
+      }
+    }, {
+      key: 'stop',
+      value: function stop() {
+        clearTimeout(this.timeout);
+      }
+    }, {
+      key: 'setGridLength',
+      value: function setGridLength(value) {
+        this.gridLength = value;
+        this.resetTimerboard();
+      }
+    }, {
+      key: 'setSquareLength',
+      value: function setSquareLength(value) {
+        this.squareLength = value;
+        this.resetTimerboard();
+      }
+    }, {
+      key: 'setTimeRemaining',
+      value: function setTimeRemaining(value) {
+        this.timeRemaining = value;
+      }
+    }, {
+      key: 'resetTimerboard',
+      value: function resetTimerboard() {
+        var x = this.squareLength * 9;
+        var y = (this.gridLength + 0.5) * this.squareLength;
+        var size = Math.ceil(this.squareLength / 2);
+        this.timerText.setText(this.toString());
+        this.timerText.setX(x);
+        this.timerText.setY(y);
+        this.timerText.setSize(size);
+      }
+    }, {
+      key: 'toString',
+      value: function toString() {
+        return "Timer: " + this.timeRemaining;
+      }
+    }, {
+      key: 'draw',
+      value: function draw(renderer) {
+        this.timerText.draw(renderer);
+      }
+    }, {
+      key: 'isDone',
+      value: function isDone() {
+        return false;
+      }
+    }]);
+
+    return CountdownTimer;
+  }();
+
+  return CountdownTimer;
+}();
+
+},{"../drawableObjects/text.js":12,"../enums/alpha.js":26,"../enums/colors.js":27}],36:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14751,7 +14967,58 @@ module.exports = function () {
   return Entity;
 }();
 
-},{"../drawableObjects/square.js":11,"../gamespace.js":48,"../gridTranslator.js":49}],35:[function(require,module,exports){
+},{"../drawableObjects/square.js":11,"../gamespace.js":54,"../gridTranslator.js":55}],37:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Alpha = require("../enums/alpha");
+var TypedText = require('../drawableObjects/typedText');
+var Rectangle = require('../drawableObjects/rectangle');
+var Colors = require("../enums/colors");
+
+module.exports = function () {
+  var GameOver = function () {
+    function GameOver(gridLength, squareLength) {
+      _classCallCheck(this, GameOver);
+
+      var self = this;
+
+      this.gridLength = gridLength;
+      this.squareLength = squareLength;
+      var x = Math.ceil(this.squareLength * this.gridLength / 2 - 2.5 * this.squareLength);
+      var y = Math.ceil(x * 1.5);
+      var size = this.squareLength;
+      var length = this.squareLength * 5.5;
+      var width = Math.ceil(this.squareLength * 1.5);
+      self.rectangle = new Rectangle(x, y - this.squareLength, length, width, Colors.BLACK, Alpha.OPAQUE);
+      self.text = new TypedText(x, y, "GAME OVER", Colors.RED, size);
+      self.text.start();
+    }
+
+    _createClass(GameOver, [{
+      key: "isDone",
+      value: function isDone() {
+        return false;
+      }
+    }, {
+      key: "draw",
+      value: function draw(renderer) {
+        var self = this;
+        self.rectangle.draw(renderer);
+        self.text.draw(renderer);
+      }
+    }]);
+
+    return GameOver;
+  }();
+
+  return GameOver;
+}();
+
+},{"../drawableObjects/rectangle":10,"../drawableObjects/typedText":13,"../enums/alpha":26,"../enums/colors":27}],38:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14793,91 +15060,99 @@ module.exports = function () {
   return Hall;
 }();
 
-},{"./maze.js":37}],36:[function(require,module,exports){
+},{"./maze.js":40}],39:[function(require,module,exports){
 "use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DrawableObject = require('../drawableObjects/drawableObject.js');
 var Alpha = require('../enums/alpha.js');
 var GridTranslator = require('../gridTranslator.js');
-var Gamespace = require('../gamespace.js');
+var Colors = require('../enums/colors.js');
 var Rectangle = require("../drawableObjects/rectangle.js");
 
 module.exports = function () {
-  var Key = function Key(x, y, squareLength, gridTranslator) {
-    DrawableObject.call(this);
-    this.squareLength = squareLength;
-    this.alpha = Alpha.OPAQUE;
-    this.gridTranslator = gridTranslator || new GridTranslator(0, 0, squareLength);
+  var Item = function () {
+    function Item(x, y, squareLength, gridTranslator) {
+      _classCallCheck(this, Item);
 
-    var length = Math.ceil(squareLength * 2 / 3);
-    var width = Math.ceil(squareLength / 5);
-    this.rectangle = new Rectangle(0, 0, length, width, Gamespace.GREEN);
+      this.squareLength = squareLength;
+      this.alpha = Alpha.OPAQUE;
+      this.gridTranslator = gridTranslator || new GridTranslator(0, 0, squareLength);
+      this.beingCarried = false;
 
-    this.setX(x);
-    this.setY(y);
-  };
+      var length = Math.ceil(squareLength * 2 / 3);
+      var width = Math.ceil(squareLength / 5);
+      this.rectangle = new Rectangle(0, 0, length, width, Colors.GREEN);
 
-  // Explicit Inheritance
-  Key.prototype = Object.create(DrawableObject.prototype);
-  Key.prototype.constructor = Key;
-
-  Key.prototype.setX = function (value) {
-    this.x = value;
-    var xInPixels = this.gridTranslator.xInPixels(value);
-    xInPixels += Math.ceil(this.squareLength / 6);
-    this.rectangle.setX(xInPixels);
-  };
-
-  Key.prototype.setY = function (value) {
-    this.y = value;
-    var yInPixels = this.gridTranslator.yInPixels(value);
-    yInPixels += Math.ceil(this.squareLength / 2.5);
-    this.rectangle.setY(yInPixels);
-  };
-
-  Key.prototype.getX = function () {
-    return this.x;
-  };
-
-  Key.prototype.getY = function () {
-    return this.y;
-  };
-
-  Key.prototype.isDone = function () {
-    return false;
-  };
-
-  Key.prototype.getDisplayObjects = function () {
-    return [this];
-  };
-
-  Key.prototype.draw = function (renderer) {
-    DrawableObject.prototype.draw.call(this);
-
-    this.rectangle.draw(renderer);
-  };
-
-  /**
-   * Note that we're converting drawMap player location to drawMap spaces. This reverses x and y.
-   */
-  Key.prototype.validMove = function (x, y, direction) {
-    switch (direction) {
-      case Gamespace.UP:
-        return this.drawMap.horizontalSpaces[y][x];
-      case Gamespace.DOWN:
-        return this.drawMap.horizontalSpaces[y + 1][x];
-      case Gamespace.LEFT:
-        return this.drawMap.verticalSpaces[y][x];
-      case Gamespace.RIGHT:
-        return this.drawMap.verticalSpaces[y][x + 1];
+      this.setX(x);
+      this.setY(y);
     }
-    return false;
-  };
 
-  return Key;
+    _createClass(Item, [{
+      key: 'setX',
+      value: function setX(value) {
+        this.x = value;
+        var xInPixels = this.gridTranslator.xInPixels(value);
+        xInPixels += Math.ceil(this.squareLength / 6);
+
+        if (this.beingCarried) {
+          xInPixels += Math.ceil(this.squareLength / 3);
+        }
+
+        this.rectangle.setX(xInPixels);
+      }
+    }, {
+      key: 'setY',
+      value: function setY(value) {
+        this.y = value;
+        var yInPixels = this.gridTranslator.yInPixels(value);
+        yInPixels += Math.ceil(this.squareLength / 2.5);
+        this.rectangle.setY(yInPixels);
+      }
+    }, {
+      key: 'getX',
+      value: function getX() {
+        return this.x;
+      }
+    }, {
+      key: 'getY',
+      value: function getY() {
+        return this.y;
+      }
+    }, {
+      key: 'isDone',
+      value: function isDone() {
+        return false;
+      }
+    }, {
+      key: 'getDisplayObjects',
+      value: function getDisplayObjects() {
+        return [this];
+      }
+    }, {
+      key: 'draw',
+      value: function draw(renderer) {
+        DrawableObject.prototype.draw.call(this);
+
+        this.rectangle.draw(renderer);
+      }
+    }, {
+      key: 'pickUp',
+      value: function pickUp() {
+        this.beingCarried = true;
+      }
+    }]);
+
+    return Item;
+  }();
+
+  return Item;
 }();
 
-},{"../drawableObjects/drawableObject.js":7,"../drawableObjects/rectangle.js":10,"../enums/alpha.js":26,"../gamespace.js":48,"../gridTranslator.js":49}],37:[function(require,module,exports){
+},{"../drawableObjects/drawableObject.js":7,"../drawableObjects/rectangle.js":10,"../enums/alpha.js":26,"../enums/colors.js":27,"../gridTranslator.js":55}],40:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14948,7 +15223,7 @@ module.exports = function () {
   return Maze;
 }();
 
-},{"../drawableObjects/drawableObject.js":7,"../enums/alpha.js":26,"../gamespace.js":48,"../gridTranslator.js":49}],38:[function(require,module,exports){
+},{"../drawableObjects/drawableObject.js":7,"../enums/alpha.js":26,"../gamespace.js":54,"../gridTranslator.js":55}],41:[function(require,module,exports){
 "use strict";
 
 /**
@@ -14969,9 +15244,17 @@ module.exports = function () {
 
   Player.prototype.constructor = Player;
 
+  var carryInventory = function carryInventory(self) {
+    for (var i = 0; i < self.inventory.length; i++) {
+      self.inventory[i].setX(self.x);
+      self.inventory[i].setY(self.y);
+    }
+  };
+
   Player.prototype.move = function (direction) {
     var success = Entity.prototype.move.call(this, direction);
     success && this.game.successfulMoveEvent();
+    carryInventory(this);
     return success;
   };
 
@@ -14985,6 +15268,7 @@ module.exports = function () {
 
   Player.prototype.addToInventory = function (item) {
     this.inventory.push(item);
+    item.pickUp();
   };
 
   Player.prototype.removeFromInventory = function (item) {
@@ -15001,7 +15285,93 @@ module.exports = function () {
   return Player;
 }();
 
-},{"./entity.js":34}],39:[function(require,module,exports){
+},{"./entity.js":36}],42:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Colors = require('../enums/colors.js');
+var Alpha = require('../enums/alpha.js');
+var Text = require('../drawableObjects/text.js');
+
+module.exports = function () {
+  var Score = function () {
+    function Score(number, gridLength, squareLength) {
+      _classCallCheck(this, Score);
+
+      this.number = number;
+      this.gridLength = gridLength;
+      this.squareLength = squareLength;
+
+      if (!this.number) {
+        number = 0;
+      }
+
+      this.scoreboard = new Text(50, 50, "Score: 000000", Colors.WHITE, Alpha.OPAQUE, 1);
+      this.resetScoreboard();
+    }
+
+    _createClass(Score, [{
+      key: 'setGridLength',
+      value: function setGridLength(value) {
+        this.gridLength = value;
+        this.resetScoreboard();
+      }
+    }, {
+      key: 'setSquareLength',
+      value: function setSquareLength(value) {
+        this.squareLength = value;
+        this.resetScoreboard();
+      }
+    }, {
+      key: 'resetScoreboard',
+      value: function resetScoreboard() {
+        var y = (this.gridLength + 0.5) * this.squareLength;
+        var size = Math.ceil(this.squareLength / 2);
+        this.scoreboard.setX(50);
+        this.scoreboard.setY(y);
+        this.scoreboard.setSize(size);
+      }
+    }, {
+      key: 'toString',
+      value: function toString() {
+        var desiredLength = 6;
+        var length = (this.number + "").length;
+        return "Score: " + ("0".repeat(desiredLength - length) + this.number);
+      }
+    }, {
+      key: 'add',
+      value: function add(value) {
+        this.number += value;
+        this.scoreboard.setText(this.toString());
+      }
+    }, {
+      key: 'setNumber',
+      value: function setNumber(value) {
+        this.number = value;
+        this.scoreboard.setText(this.toString());
+      }
+    }, {
+      key: 'draw',
+      value: function draw(renderer) {
+        this.scoreboard.draw(renderer);
+      }
+    }, {
+      key: 'isDone',
+      value: function isDone() {
+        return false;
+      }
+    }]);
+
+    return Score;
+  }();
+
+  return Score;
+}();
+
+},{"../drawableObjects/text.js":12,"../enums/alpha.js":26,"../enums/colors.js":27}],43:[function(require,module,exports){
 "use strict";
 
 /**
@@ -15078,7 +15448,7 @@ Game.prototype.validMove = function (x, y, direction) {
 
 module.exports = Game;
 
-},{}],40:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 
 var Alpha = require('../enums/alpha.js');
@@ -15147,7 +15517,7 @@ module.exports = function () {
     var margin = DisplayConstants.TEXT_MARGIN;
     var textSize = DisplayConstants.TEXT_SIZE;
     var text = new TypedText(margin, 3 * margin, "> Move white square to green circle", "white");
-    text.type();
+    text.start();
     this.statusDisplay.addObject(text);
     this.state = HallGameStates.END;
     this.maze = new Hall(this.squareLength, this.hallLength, this.gridTranslator);
@@ -15232,7 +15602,7 @@ module.exports = function () {
   return HallGame;
 }();
 
-},{"../drawableObjects/blinkingCursor.js":5,"../drawableObjects/circle.js":6,"../drawableObjects/text.js":12,"../drawableObjects/typedText.js":13,"../enums/alpha.js":26,"../enums/displayConstants.js":27,"../gameObjects/hall.js":35,"../gameObjects/player.js":38,"../gamespace.js":48,"../gridTranslator.js":49,"./game.js":39}],41:[function(require,module,exports){
+},{"../drawableObjects/blinkingCursor.js":5,"../drawableObjects/circle.js":6,"../drawableObjects/text.js":12,"../drawableObjects/typedText.js":13,"../enums/alpha.js":26,"../enums/displayConstants.js":28,"../gameObjects/hall.js":38,"../gameObjects/player.js":41,"../gamespace.js":54,"../gridTranslator.js":55,"./game.js":43}],45:[function(require,module,exports){
 "use strict";
 
 // Constructor calls super
@@ -15268,7 +15638,7 @@ module.exports = function () {
   return LightningMazeGame;
 }();
 
-},{"./game.js":39,"./mazeGame.js":42}],42:[function(require,module,exports){
+},{"./game.js":43,"./mazeGame.js":46}],46:[function(require,module,exports){
 "use strict";
 
 /**
@@ -15455,7 +15825,7 @@ module.exports = function () {
   return MazeGame;
 }();
 
-},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":37,"../gameObjects/player.js":38,"../gamespace.js":48,"../mazeData.js":51,"./game.js":39}],43:[function(require,module,exports){
+},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":40,"../gameObjects/player.js":41,"../gamespace.js":54,"../mazeData.js":57,"./game.js":43}],47:[function(require,module,exports){
 "use strict";
 
 /**
@@ -15616,7 +15986,95 @@ module.exports = function () {
   return MultiplayerOnlineMazeGame;
 }();
 
-},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":37,"../gameObjects/player.js":38,"../games/mazeGame.js":42,"../gamespace.js":48,"../mazeData.js":51,"./game.js":39}],44:[function(require,module,exports){
+},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":40,"../gameObjects/player.js":41,"../games/mazeGame.js":46,"../gamespace.js":54,"../mazeData.js":57,"./game.js":43}],48:[function(require,module,exports){
+"use strict";
+
+/**
+ * Interface Game
+ * Interface KeyDownListener
+ *
+ * Object responsibility: Communicate state changes between player, displays, keyboardDriver, 
+ * and gameMaster
+ * 
+ * A series of meaningful choices played out across 1 display
+ * using only arrow keys and swipes. 
+ * 
+ * Non-assumptions
+ * - Not necessarily played on a grid.
+ * 
+ */
+
+var Colors = require("../../enums/colors.js");
+var Alpha = require("../../enums/alpha.js");
+var Text = require("../../drawableObjects/text.js");
+
+module.exports = function () {
+    var SingleDisplayGame = function SingleDisplayGame() {
+        var self = this;
+        this.displays = [];
+        this.keyboardDriver = null;
+        this.gameEndListeners = [];
+        this.running = false;
+        this.time = 60;
+    };
+
+    SingleDisplayGame.prototype.start = function () {
+        for (var i = 0; i < this.displays.length; i++) {
+            this.displays[i].start();
+        }
+
+        this.keyboardDriver.addKeyDownListener(this);
+        this.running = true;
+    };
+
+    SingleDisplayGame.prototype.stop = function () {
+        if (!this.running) {
+            return;
+        }
+
+        for (var i = 0; i < this.displays.length; i++) {
+            this.displays[i].clear();
+            this.displays[i].stop();
+        }
+
+        this.keyboardDriver.removeKeyDownListener(this);
+        this.running = false;
+    };
+
+    SingleDisplayGame.prototype.clearDisplays = function () {
+        this.displays[0].clear();
+    };
+
+    SingleDisplayGame.prototype.gameLoop = function () {
+        // method stuff
+    };
+
+    SingleDisplayGame.prototype.keyDown = function () {
+        // method stuff
+    };
+
+    SingleDisplayGame.prototype.addGameEndListener = function (gameEndListener) {
+        this.gameEndListeners.push(gameEndListener);
+    };
+
+    SingleDisplayGame.prototype.gameEnd = function (data) {
+        for (var i = 0; i < this.gameEndListeners.length; i++) {
+            this.gameEndListeners[i].gameEnd(data);
+        }
+    };
+
+    SingleDisplayGame.prototype.successfulMoveEvent = function () {
+        // method stuff
+    };
+
+    SingleDisplayGame.prototype.validMove = function (x, y, direction) {
+        return true;
+    };
+
+    return SingleDisplayGame;
+}();
+
+},{"../../drawableObjects/text.js":12,"../../enums/alpha.js":26,"../../enums/colors.js":27}],49:[function(require,module,exports){
 "use strict";
 
 /**
@@ -15628,13 +16086,13 @@ var SingleDisplayMazeGame = require('./mazeGame.js');
 var MazeData = require('../../mazeData.js');
 var Maze = require('../../gameObjects/maze.js');
 var Player = require('../../gameObjects/player.js');
-var Key = require('../../gameObjects/key.js');
+var Item = require('../../gameObjects/item.js');
 var Circle = require('../../drawableObjects/circle.js');
 
 module.exports = function () {
-  var KeyMazeGame = function KeyMazeGame(keyboardDriver, display, gridLength, squareLength) {
+  var KeyMazeGame = function KeyMazeGame(keyboardDriver, display, gridLength, squareLength, score) {
     var self = this;
-    SingleDisplayMazeGame.call(self, keyboardDriver, display, gridLength, squareLength);
+    SingleDisplayMazeGame.call(self, keyboardDriver, display, gridLength, squareLength, score);
   };
 
   KeyMazeGame.prototype = Object.create(SingleDisplayMazeGame.prototype);
@@ -15645,12 +16103,8 @@ module.exports = function () {
   };
 
   KeyMazeGame.prototype.clearDisplays = function () {
-    this.display.clear();
-    this.display.addObject(this.maze);
-    this.display.addObject(this.player);
-    this.display.addObject(this.goalObject);
+    SingleDisplayMazeGame.prototype.clearDisplays.call(this);
     this.display.addObject(this.key);
-    this.drawLoop();
   };
 
   var upTo = function upTo(num) {
@@ -15666,28 +16120,16 @@ module.exports = function () {
       return placeKey(self);
     }
 
-    self.key = new Key(x, y, self.squareLength, self.gridTranslator);
+    self.key = new Item(x, y, self.squareLength, self.gridTranslator);
   };
 
   KeyMazeGame.prototype.reset = function () {
-    this.won = false;
-    this.map = MazeData.generate(this.gridLength, this.gridLength);
-    this.drawMap = MazeData.translate(this.map);
-    this.maze = new Maze(this.drawMap, this.squareLength);
-    this.player = new Player(this.gridLength, this.squareLength, this);
-    var goalSquareLocation = this.gridLength * this.squareLength - this.squareLength / 2;
-    this.goalObject = new Circle(goalSquareLocation, goalSquareLocation, this.squareLength / 4, "green");
     placeKey(this);
-    this.clearDisplays();
+    SingleDisplayMazeGame.prototype.reset.call(this);
   };
 
   var playerAtKey = function playerAtKey(player, key) {
     return !player.has(key) && player.getX() === key.getX() && player.getY() === key.getY();
-  };
-
-  var moveKeyWithPlayer = function moveKeyWithPlayer(key, player) {
-    key.setX(player.getX());
-    key.setY(player.getY());
   };
 
   KeyMazeGame.prototype.performMove = function (move) {
@@ -15701,10 +16143,6 @@ module.exports = function () {
     if (playerAtKey(this.player, this.key)) {
       this.player.addToInventory(this.key);
     }
-
-    if (this.player.has(this.key)) {
-      moveKeyWithPlayer(this.key, this.player);
-    }
   };
 
   KeyMazeGame.prototype.winCondition = function () {
@@ -15714,7 +16152,39 @@ module.exports = function () {
   return KeyMazeGame;
 }();
 
-},{"../../drawableObjects/circle.js":6,"../../gameObjects/key.js":36,"../../gameObjects/maze.js":37,"../../gameObjects/player.js":38,"../../mazeData.js":51,"./mazeGame.js":45}],45:[function(require,module,exports){
+},{"../../drawableObjects/circle.js":6,"../../gameObjects/item.js":39,"../../gameObjects/maze.js":40,"../../gameObjects/player.js":41,"../../mazeData.js":57,"./mazeGame.js":51}],50:[function(require,module,exports){
+"use strict";
+
+// Constructor calls super
+
+var SingleDisplayMazeGame = require('./mazeGame.js');
+var Game = require('../game.js');
+
+module.exports = function () {
+
+  var SingleDisplayLightningMazeGame = function SingleDisplayLightningMazeGame(keyboardDriver, display, gridLength, squareLength, score, playerNumber) {
+    var self = this;
+    SingleDisplayMazeGame.call(self, keyboardDriver, display, gridLength, squareLength, score, playerNumber);
+    this.gridLength = gridLength;
+    this.squareLength = squareLength;
+    this.display = display;
+    this.displays = [display];
+    this.keyboardDriver = keyboardDriver;
+  };
+
+  // Explicit Inheritance
+  SingleDisplayLightningMazeGame.prototype = Object.create(SingleDisplayMazeGame.prototype);
+  SingleDisplayLightningMazeGame.prototype.constructor = SingleDisplayLightningMazeGame;
+
+  SingleDisplayLightningMazeGame.prototype.clearDisplays = function () {
+    this.clearDisplaysCommon();
+    this.display.addLightningObject(this.maze);
+  };
+
+  return SingleDisplayLightningMazeGame;
+}();
+
+},{"../game.js":43,"./mazeGame.js":51}],51:[function(require,module,exports){
 "use strict";
 
 /**
@@ -15722,20 +16192,24 @@ module.exports = function () {
  * Interface KeyDownListener
  */
 
-var Game = require('../game.js');
+var SingleDisplayGame = require('./game.js');
 var MazeData = require('../../mazeData.js');
 var Gamespace = require('../../gamespace.js');
+var Colors = require('../../enums/colors.js');
 var GridTranslator = require('../../gridTranslator.js');
 var Maze = require('../../gameObjects/maze.js');
 var Player = require('../../gameObjects/player.js');
+var CountdownTimer = require('../../gameObjects/countdownTimer.js');
 var Circle = require('../../drawableObjects/circle.js');
 var Spark = require('../../effects/spark.js');
 
+var defaultTimeRemaining = 60;
+
 module.exports = function () {
-  var SingleDisplayMazeGame = function SingleDisplayMazeGame(keyboardDriver, display, gridLength, squareLength) {
+  var SingleDisplayMazeGame = function SingleDisplayMazeGame(keyboardDriver, display, gridLength, squareLength, score, playerNumber) {
     var self = this;
 
-    Game.call(self);
+    SingleDisplayGame.call(self);
     this.gridLength = gridLength;
     this.squareLength = squareLength;
     this.display = display;
@@ -15744,10 +16218,19 @@ module.exports = function () {
     this.keyboardDriver = keyboardDriver;
     this.networkDriver = null;
     this.gridTranslator = new GridTranslator(0, 0, this.squareLength * 3.5);
+
+    this.score = score;
+    this.timeRemaining = defaultTimeRemaining;
+    this.countdownTimer = new CountdownTimer(this.timeRemaining, this.gridLength, this.squarelength, function () {
+      self.lose();
+    });
+
+    this.playerNumber = playerNumber;
   };
 
-  SingleDisplayMazeGame.prototype = Object.create(Game.prototype);
+  SingleDisplayMazeGame.prototype = Object.create(SingleDisplayGame.prototype);
 
+  //!!ADRIAN - Move this to its own effect class
   SingleDisplayMazeGame.prototype.showerOfSparks = function (xMultiplier, yMultiplier) {
     var self = this;
     var position = this.translatedPlayerPosition();
@@ -15765,7 +16248,7 @@ module.exports = function () {
       var distanceInSquares = distance / self.squareLength;
       var length = sparkLength * distanceInSquares;
 
-      new Spark(self.display, sparkX, sparkY, length, framesDuration, Gamespace.randomColor());
+      new Spark(self.display, sparkX, sparkY, length, framesDuration, Colors.randomColor());
     };
 
     for (var i = 0; i < numSparks; i++) {
@@ -15774,14 +16257,43 @@ module.exports = function () {
     }
   };
 
+  // positions come in as a list of objects:
+  // {number: 1, x: 8, y: 5}
+  // Wipe out all players but the primary.
+  // Add players one by one.
+  // Reset the display to draw the new state of affairs.
+  SingleDisplayGame.prototype.setPositions = function (positions) {
+    this.players = [this.players[0]];
+    for (var x = 0; x < positions.length; x++) {
+      if (positions[x].number == this.playerNumber) {
+        continue;
+      }
+
+      this.addPlayer(positions[x].x, positions[x].y);
+      this.clearDisplays();
+    }
+  };
+
   SingleDisplayMazeGame.prototype.setGridLength = function (gridLength) {
     this.gridLength = gridLength;
+    this.countdownTimer.setGridLength(gridLength);
+    return this;
+  };
+
+  SingleDisplayMazeGame.prototype.setTimeRemaining = function (time) {
+    this.timeRemaining = time;
+    this.countdownTimer.setTimeRemaining(time);
+  };
+
+  SingleDisplayMazeGame.prototype.setPlayerNumber = function (playerNumber) {
+    this.playerNumber = playerNumber;
     return this;
   };
 
   SingleDisplayMazeGame.prototype.setSquareLength = function (squareLength) {
     this.squareLength = squareLength;
     this.gridTranslator = new GridTranslator(0, 0, this.squareLength);
+    this.countdownTimer.setSquareLength(squareLength);
     return this;
   };
 
@@ -15794,9 +16306,21 @@ module.exports = function () {
     return this.maze;
   };
 
+  SingleDisplayMazeGame.prototype.setMaze = function (maze) {
+    this.stop();
+    SingleDisplayGame.prototype.start.call(this);
+    this.reset(maze);
+  };
+
   SingleDisplayMazeGame.prototype.start = function () {
     var self = this;
-    Game.prototype.start.call(self);
+
+    if (this.playerNumber == null) {
+      throw "Player number cannot be null";
+    }
+
+    SingleDisplayGame.prototype.start.call(self);
+
     this.reset();
   };
 
@@ -15804,19 +16328,56 @@ module.exports = function () {
     this.display.render();
   };
 
-  SingleDisplayMazeGame.prototype.clearDisplays = function () {
-    this.display.clear();
-    this.display.addObject(this.maze);
+  SingleDisplayMazeGame.prototype.clearDisplaysCommon = function () {
+    SingleDisplayGame.prototype.clearDisplays.call(this);
     this.display.addObject(this.player);
     this.display.addObject(this.goalObject);
+    this.display.addObject(this.countdownTimer);
+
+    if (this.score) {
+      this.display.addObject(this.score);
+    }
+
+    for (var x = 0; x < this.players.length; x++) {
+      this.display.addObject(this.players[x]);
+    }
+  };
+
+  SingleDisplayMazeGame.prototype.addPlayer = function (x, y) {
+    var player = new Player(this.gridLength, this.squareLength, this);
+    player.setPosition(x || 0, y || 0);
+
+    if (this.players.length == 0) {
+      this.player = player;
+    } else {
+      player.setColor("#555555");
+    }
+
+    this.players.push(player);
+  };
+
+  SingleDisplayMazeGame.prototype.clearDisplays = function () {
+    this.clearDisplaysCommon();
+    this.display.addObject(this.maze);
     this.drawLoop();
   };
 
-  SingleDisplayMazeGame.prototype.reset = function () {
+  SingleDisplayMazeGame.prototype.reset = function (maze) {
+    this.players = [];
+    this.addPlayer();
+    this.countdownTimer.stop();
+    this.countdownTimer.setTimeRemaining(this.timeRemaining);
+    this.countdownTimer.start();
     this.won = false;
-    this.map = MazeData.generate(this.gridLength, this.gridLength);
-    this.drawMap = MazeData.translate(this.map);
-    this.maze = new Maze(this.drawMap, this.squareLength);
+
+    if (maze == null || maze.drawMap == null) {
+      var map = MazeData.generate(this.gridLength, this.gridLength);
+      var drawMap = MazeData.translate(map);
+      this.maze = new Maze(drawMap, this.squareLength);
+    } else {
+      this.maze = new Maze(maze.drawMap, this.squareLength);
+    }
+
     this.player = new Player(this.gridLength, this.squareLength, this);
     var goalSquareLocation = this.gridLength * this.squareLength - this.squareLength / 2;
     this.goalObject = new Circle(goalSquareLocation, goalSquareLocation, this.squareLength / 4, "green");
@@ -15841,10 +16402,6 @@ module.exports = function () {
 
   SingleDisplayMazeGame.prototype.getMoveForEvent = function (evt) {
     var self = this;
-
-    if (!self.running) {
-      return function () {};
-    }
 
     switch (evt.keyCode) {
       case Gamespace.LEFT_CODE:
@@ -15881,11 +16438,11 @@ module.exports = function () {
     var validMoves = self.validMoves(self.player.getX(), self.player.getY());
 
     if (success && validMoves.length === 2) {
-      if (self.timeout != null) {
-        clearTimeout(self.timeout);
+      if (self.movementTimeout != null) {
+        clearTimeout(self.movementTimeout);
       }
 
-      self.timeout = setTimeout(function () {
+      self.movementTimeout = setTimeout(function () {
         self.performMove(move);
       }, 20);
     } else {
@@ -15906,6 +16463,9 @@ module.exports = function () {
   };
 
   SingleDisplayMazeGame.prototype.keyDown = function (evt) {
+    if (!this.running) {
+      return;
+    }
     var move = this.getMoveForEvent(evt);
     this.performMove(move);
   };
@@ -15917,11 +16477,12 @@ module.exports = function () {
   SingleDisplayMazeGame.prototype.win = function () {
     var self = this;
 
-    if (self.timeout != null) {
-      clearTimeout(self.timeout);
+    if (self.movementTimeout != null) {
+      clearTimeout(self.movementTimeout);
     }
 
     this.stop();
+    this.countdownTimer.stop();
     this.won = true;
     this.networkDriver.sendWin(this.playerNumber);
 
@@ -15930,11 +16491,24 @@ module.exports = function () {
     });
   };
 
+  SingleDisplayGame.prototype.lose = function () {
+    var self = this;
+    this.countdownTimer.stop();
+    this.running = false;
+    self.gameEnd({ won: false });
+  };
+
   SingleDisplayMazeGame.prototype.successfulMoveEvent = function () {
     var self = this;
     if (this.display === null) {
       return;
     }
+
+    this.networkDriver.send({
+      x: this.player.x,
+      y: this.player.y,
+      playerNumber: this.playerNumber
+    });
   };
 
   SingleDisplayMazeGame.prototype.translatedPlayerPosition = function () {
@@ -15957,7 +16531,7 @@ module.exports = function () {
   return SingleDisplayMazeGame;
 }();
 
-},{"../../drawableObjects/circle.js":6,"../../effects/spark.js":24,"../../gameObjects/maze.js":37,"../../gameObjects/player.js":38,"../../gamespace.js":48,"../../gridTranslator.js":49,"../../mazeData.js":51,"../game.js":39}],46:[function(require,module,exports){
+},{"../../drawableObjects/circle.js":6,"../../effects/spark.js":24,"../../enums/colors.js":27,"../../gameObjects/countdownTimer.js":35,"../../gameObjects/maze.js":40,"../../gameObjects/player.js":41,"../../gamespace.js":54,"../../gridTranslator.js":55,"../../mazeData.js":57,"./game.js":48}],52:[function(require,module,exports){
 "use strict";
 
 var MazeGame = require('../games/mazeGame.js');
@@ -16018,7 +16592,7 @@ module.exports = function () {
   return SplitMazeGame;
 }();
 
-},{"../drivers/displays/horizontalDisplay.js":15,"../drivers/displays/verticalDisplay.js":19,"../games/mazeGame.js":42,"./game.js":39}],47:[function(require,module,exports){
+},{"../drivers/displays/horizontalDisplay.js":15,"../drivers/displays/verticalDisplay.js":19,"../games/mazeGame.js":46,"./game.js":43}],53:[function(require,module,exports){
 "use strict";
 
 /**
@@ -16170,7 +16744,7 @@ module.exports = function () {
   return TwoPlayerMazeGame;
 }();
 
-},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":37,"../gameObjects/player.js":38,"../games/mazeGame.js":42,"../gamespace.js":48,"../mazeData.js":51,"./game.js":39}],48:[function(require,module,exports){
+},{"../drawableObjects/circle.js":6,"../effects/firework.js":22,"../gameObjects/maze.js":40,"../gameObjects/player.js":41,"../games/mazeGame.js":46,"../gamespace.js":54,"../mazeData.js":57,"./game.js":43}],54:[function(require,module,exports){
 "use strict";
 
 /**
@@ -16179,13 +16753,6 @@ module.exports = function () {
 
 module.exports = function () {
   var Gamespace = {
-    VIOLET: "#9400D3",
-    BLUE: "#0000FF",
-    GREEN: "#00FF00",
-    YELLOW: "#FFFF00",
-    ORANGE: "#FF7F00",
-    RED: "#FF0000",
-
     UP: "UP",
     DOWN: "DOWN",
     LEFT: "LEFT",
@@ -16202,8 +16769,6 @@ module.exports = function () {
     D_CODE: 68
   };
 
-  Gamespace.rainbow = [Gamespace.RED, Gamespace.ORANGE, Gamespace.YELLOW, Gamespace.GREEN, Gamespace.BLUE, Gamespace.VIOLET];
-
   Gamespace.oppositeOf = function oppositeOf(direction) {
     switch (direction) {
       case Gamespace.UP:
@@ -16217,15 +16782,10 @@ module.exports = function () {
     }
   };
 
-  Gamespace.randomColor = function () {
-    var index = Math.floor(Math.random() * 6);
-    return this.rainbow[index];
-  };
-
   return Gamespace;
 }();
 
-},{}],49:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 "use strict";
 
 /**
@@ -16292,7 +16852,7 @@ module.exports = function () {
   return GridTranslator;
 }();
 
-},{}],50:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 
 var $ = require("jquery");
@@ -16408,20 +16968,21 @@ module.exports = function () {
     this.gameMaster.addMazeGame().setGridLength(gridLength).setSquareLength(Math.floor(canvasLength / gridLength)).start(maze);
   };
 
+  /**
+   * 16x9 ratio
+   */
   HollowCart.prototype.adjustCanvas = function () {
     var canvas = $('canvas');
 
     var canvasLength = window.innerWidth;
-    if (window.innerHeight < canvasLength) {
-      canvasLength = window.innerHeight;
-    }
 
-    canvasLength = canvasLength - 75;
-    canvas.attr('height', canvasLength).attr('width', canvasLength);
+    var canvasHeight = Math.floor(canvasLength / 9 * 16);
+    canvas.attr('height', canvasHeight).attr('width', canvasLength);
 
     while (canvasLength > 0 && !canvas.visible()) {
       canvasLength -= 5;
-      canvas.attr('height', canvasLength).attr('width', canvasLength);
+      canvasHeight = Math.floor(canvasLength / 9 * 16);
+      canvas.attr('height', canvasHeight).attr('width', canvasLength);
     }
 
     if (canvasLength <= 0) {
@@ -16521,7 +17082,7 @@ module.exports = function () {
   return HollowCart;
 }();
 
-},{"./drivers/keyboardDriver.js":20,"./drivers/nullNetworkDriver.js":21,"./gameMasters/mazeGameMaster.js":29,"./gameMasters/neuralActivityGameMaster.js":30,"./gameMasters/singleDisplayGameMaster.js":31,"./gameMasters/trustContentGameMaster.js":32,"./gameMasters/twoPlayerGameMaster.js":33,"./gamespace.js":48,"hammerjs":1,"jquery":3,"jquery-visible":2}],51:[function(require,module,exports){
+},{"./drivers/keyboardDriver.js":20,"./drivers/nullNetworkDriver.js":21,"./gameMasters/mazeGameMaster.js":30,"./gameMasters/neuralActivityGameMaster.js":31,"./gameMasters/singleDisplayGameMaster.js":32,"./gameMasters/trustContentGameMaster.js":33,"./gameMasters/twoPlayerGameMaster.js":34,"./gamespace.js":54,"hammerjs":1,"jquery":3,"jquery-visible":2}],57:[function(require,module,exports){
 'use strict';
 
 /**
@@ -16623,7 +17184,7 @@ module.exports = {
   }
 };
 
-},{}],52:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16642,14 +17203,14 @@ module.exports = function () {
     var KeyMazeScene = function (_Scene) {
         _inherits(KeyMazeScene, _Scene);
 
-        function KeyMazeScene(keyboardDriver, display, gridLength, squareLength) {
+        function KeyMazeScene(keyboardDriver, display, gridLength, squareLength, score, playerNumber) {
             _classCallCheck(this, KeyMazeScene);
 
             var _this = _possibleConstructorReturn(this, (KeyMazeScene.__proto__ || Object.getPrototypeOf(KeyMazeScene)).call(this));
 
             _this.display = display;
             _this.squareLength = squareLength;
-            _this.game = new KeyMazeGame(keyboardDriver, display, gridLength, squareLength);
+            _this.game = new KeyMazeGame(keyboardDriver, display, gridLength, squareLength, score, playerNumber);
             return _this;
         }
 
@@ -16674,7 +17235,7 @@ module.exports = function () {
                     setTimeout(next, 1000);
                 };
                 text.setCallback(callback);
-                text.type();
+                text.start();
             }
         }]);
 
@@ -16684,7 +17245,7 @@ module.exports = function () {
     return KeyMazeScene;
 }();
 
-},{"../drawableObjects/typedText.js":13,"../games/singleDisplay/keyMazeGame.js":44,"./scene.js":53}],53:[function(require,module,exports){
+},{"../drawableObjects/typedText.js":13,"../games/singleDisplay/keyMazeGame.js":49,"./scene.js":59}],59:[function(require,module,exports){
 "use strict";
 // A scene is a game, an intro function, and a boolean to show whether or not the intro has played.
 // It also functions as a decorator for its game.
@@ -16750,6 +17311,31 @@ module.exports = function () {
             value: function win() {
                 this.game.win();
             }
+        }, {
+            key: "getMaze",
+            value: function getMaze() {
+                return this.game.getMaze();
+            }
+        }, {
+            key: "setMaze",
+            value: function setMaze(maze) {
+                this.game.setMaze(maze);
+            }
+        }, {
+            key: "setTimeRemaining",
+            value: function setTimeRemaining(time) {
+                this.game.setTimeRemaining(time);
+            }
+        }, {
+            key: "setPositions",
+            value: function setPositions(data) {
+                this.game.setPositions(data);
+            }
+        }, {
+            key: "setPlayerNumber",
+            value: function setPlayerNumber(playerNumber) {
+                this.game.setPlayerNumber(playerNumber);
+            }
         }]);
 
         return Scene;
@@ -16758,7 +17344,7 @@ module.exports = function () {
     return Scene;
 }();
 
-},{}],54:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16777,14 +17363,14 @@ module.exports = function () {
     var SimpleMazeScene = function (_Scene) {
         _inherits(SimpleMazeScene, _Scene);
 
-        function SimpleMazeScene(keyboardDriver, display, gridLength, squareLength) {
+        function SimpleMazeScene(keyboardDriver, display, gridLength, squareLength, score, playerNumber) {
             _classCallCheck(this, SimpleMazeScene);
 
             var _this = _possibleConstructorReturn(this, (SimpleMazeScene.__proto__ || Object.getPrototypeOf(SimpleMazeScene)).call(this));
 
             _this.display = display;
             _this.squareLength = squareLength;
-            _this.game = new MazeGame(keyboardDriver, display, gridLength, squareLength);
+            _this.game = new MazeGame(keyboardDriver, display, gridLength, squareLength, score, playerNumber);
             return _this;
         }
 
@@ -16809,7 +17395,7 @@ module.exports = function () {
                     setTimeout(next, 1000);
                 };
                 text.setCallback(callback);
-                text.type();
+                text.start();
             }
         }, {
             key: 'showText2',
@@ -16824,7 +17410,7 @@ module.exports = function () {
                     setTimeout(next, 1000);
                 };
                 text.setCallback(callback);
-                text.type();
+                text.start();
             }
         }]);
 
@@ -16834,7 +17420,7 @@ module.exports = function () {
     return SimpleMazeScene;
 }();
 
-},{"../drawableObjects/typedText.js":13,"../games/singleDisplay/mazeGame.js":45,"./scene.js":53}],55:[function(require,module,exports){
+},{"../drawableObjects/typedText.js":13,"../games/singleDisplay/mazeGame.js":51,"./scene.js":59}],61:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -16843,4 +17429,4 @@ global.jQuery = $;
 global.HollowCart = require('./engine/hollowCart.js');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./engine/hollowCart.js":50,"jquery":3}]},{},[55]);
+},{"./engine/hollowCart.js":56,"jquery":3}]},{},[61]);

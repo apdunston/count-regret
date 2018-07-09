@@ -1,4 +1,4 @@
-<div>
+<div style="margin: auto">
   <div class="controls">
     <div>
       <button class="start-button" style="background-color: white">Start New Game</button>
@@ -10,7 +10,7 @@
   </div>
   <br>
   <div>
-    <div class="play-area hidden" style="display: none">
+    <div class="play-area hidden" style="display: none; margin: auto">
       <canvas id="canvas1"></canvas>
     </div>
   </div>
